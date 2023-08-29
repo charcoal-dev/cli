@@ -108,6 +108,16 @@ class CLI
     }
 
     /**
+     * Alias of "exec" method
+     * @return never
+     * @throws \Throwable
+     */
+    final public function burn(): never
+    {
+        $this->exec();
+    }
+
+    /**
      * @return never
      * @throws \Throwable
      */
