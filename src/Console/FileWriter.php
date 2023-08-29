@@ -15,20 +15,38 @@ declare(strict_types=1);
 namespace Charcoal\CLI\Console;
 
 use Charcoal\CLI\CLI;
+use Charcoal\Filesystem\File;
 
 /**
- * Class StdoutPrinter
+ * Class FileWriter
  * @package Charcoal\CLI\Console
  */
-class StdoutPrinter extends AbstractOutputHandler
+class FileWriter extends AbstractOutputHandler
 {
+    /** @var mixed|null */
+    private mixed $fp = null;
+
+    /**
+     * @param \Charcoal\Filesystem\File $file
+     * @param bool $append
+     * @throws \Charcoal\Filesystem\Exception\FilesystemException
+     */
+    public function __construct(public readonly File $file, public readonly bool $append)
+    {
+        if (!$this->file->isWritable()) {
+            throw new \UnexpectedValueException('Logger file is not writable');
+        }
+    }
+
     public function startBuffer(CLI $cli): void
     {
-        $this->useAnsiCodes = $cli->flags->useANSI();
+        $this->fp = fopen($this->file->path, $this->append ? "a" : "w");
     }
 
     public function endBuffer(CLI $cli): void
     {
+        fclose($this->fp);
+        $this->fp = null;
     }
 
     public function getBufferedData(): null|string
@@ -38,15 +56,15 @@ class StdoutPrinter extends AbstractOutputHandler
 
     public function isActive(): bool
     {
-        return true;
+        return is_resource($this->fp);
     }
 
     public function write(string $input, bool $eol): void
     {
-        if (!$this->isActive()) {
+        if (!$this->fp) {
             return;
         }
 
-        print $this->getAnsiFilteredString($input, $eol) . ($eol ? $this->eolChar : "");
+        fwrite($this->fp, $this->getAnsiFilteredString($input, $eol) . ($eol ? $this->eolChar : ""));
     }
 }

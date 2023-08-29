@@ -17,35 +17,60 @@ namespace Charcoal\CLI\Console;
 use Charcoal\CLI\CLI;
 
 /**
- * Class StdNull
+ * Class StringBuffer
  * @package Charcoal\CLI\Console
  */
-class StdNull extends AbstractOutputHandler
+class StringBuffer extends AbstractOutputHandler
 {
+    private ?string $buffer = null;
+    private ?string $finished = null;
+
     /**
      * @param \Charcoal\CLI\CLI $cli
      * @return void
      */
     public function startBuffer(CLI $cli): void
     {
-        $this->useAnsiCodes = $cli->flags->useANSI();
+        $this->buffer = "";
     }
 
+    /**
+     * @param \Charcoal\CLI\CLI $cli
+     * @return void
+     */
     public function endBuffer(CLI $cli): void
     {
+        $this->finished = $this->buffer;
+        $this->buffer = null;
     }
 
+    /**
+     * @return string|null
+     */
     public function getBufferedData(): null|string
     {
-        return null;
+        return $this->finished ?? $this->buffer;
     }
 
+    /**
+     * @return bool
+     */
     public function isActive(): bool
     {
-        return true;
+        return is_string($this->buffer);
     }
 
+    /**
+     * @param string $input
+     * @param bool $eol
+     * @return void
+     */
     public function write(string $input, bool $eol): void
     {
+        if (!$this->isActive()) {
+            return;
+        }
+
+        $this->buffer .= $this->getAnsiFilteredString($input, $eol) . ($eol ? $this->eolChar : "");
     }
 }

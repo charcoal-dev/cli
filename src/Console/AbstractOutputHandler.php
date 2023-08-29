@@ -77,11 +77,12 @@ abstract class AbstractOutputHandler
 
     /**
      * @param string $input
+     * @param bool $addResetSuffix
      * @return string
      */
-    protected function getAnsiFilteredString(string $input): string
+    protected function getAnsiFilteredString(string $input, bool $addResetSuffix): string
     {
         return $this->useAnsiCodes ?
-            AnsiEscapeSeq::Parse($input) : AnsiEscapeSeq::Clean($input);
+            AnsiEscapeSeq::Parse($input, $addResetSuffix) : AnsiEscapeSeq::Clean($input);
     }
 }
