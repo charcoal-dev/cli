@@ -37,7 +37,7 @@ class AnsiEscapeSeq
     public static function Parse(string $input, bool $addResetSuffix = true): string
     {
         $parsed = preg_replace_callback(
-            '/{([a-z]+|\/)}/i',
+            '/{([a-z]+|\/)([0-9]+)*}/i',
             function ($modifier) {
                 return match (strtolower($modifier[1] ?? "")) {
                     "red" => "\e[31m",
@@ -48,9 +48,20 @@ class AnsiEscapeSeq
                     "gray", "grey" => "\e[90m",
                     "cyan" => "\e[36m",
                     "b", "bold" => "\e[1m",
+                    "d", "dim" => "\e[2m",
                     "u", "underline" => "\e[4m",
                     "blink" => "\e[5m",
                     "invert" => "\e[7m",
+                    "goleft" => sprintf("\e[%dD", intval($modifier[2] ?? 1)),
+                    "goright" => sprintf("\e[%dC", intval($modifier[2] ?? 1)),
+                    "goup" => sprintf("\e[%dA", intval($modifier[2] ?? 1)),
+                    "godown" => sprintf("\e[%dB", intval($modifier[2] ?? 1)),
+                    "clearline" => "\e[2K",
+                    "trimleft" => "\e[1K",
+                    "trimright" => "\e[K",
+                    "clearscreen" => "\e[2J",
+                    "clearleft" => "\e[1J",
+                    "clearright" => "\e[J",
                     "reset", "/" => "\e[0m",
                     default => $modifier[0] ?? "",
                 };
