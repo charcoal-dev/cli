@@ -179,7 +179,7 @@ class CLI
                 $scriptObject->exec();
                 $execSuccess = true;
             } catch (\Throwable $t) {
-                $this->events->scriptExecException()->trigger([$this, $t]);
+                $this->events->scriptExecException()->trigger([$this, $scriptObject, $t]);
                 throw $t;
             }
         } catch (\Throwable $t) {
@@ -195,7 +195,7 @@ class CLI
         }
 
         // After script exec event
-        $this->events->afterExec()->trigger([$this, $execSuccess]);
+        $this->events->afterExec()->trigger([$this, $execSuccess, $scriptObject ?? null]);
         $this->print("");
         $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartStamp, 4)));
         $this->printMemoryConsumption();

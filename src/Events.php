@@ -41,7 +41,8 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is boolean, if script exec method finishes without any thrown exceptions, its value is TRUE otherwise FALSE
+     * Callback second argument is boolean: if script exec method finishes without any thrown exceptions, its value is TRUE otherwise FALSE
+     * Callback third argument is instance of AbstractCliScript or NULL
      * @return Event
      */
     public function afterExec(): Event
@@ -51,7 +52,7 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is string class name
+     * Callback second argument is string classname
      * @return Event
      */
     public function scriptNotFound(): Event
@@ -61,7 +62,7 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is instance of Abstract_CLI_Script
+     * Callback second argument is instance of AbstractCliScript
      * @return Event
      */
     public function scriptLoaded(): Event
@@ -71,7 +72,8 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument will be an instance of \Throwable
+     * Callback second argument will be an instance of AbstractCliScript
+     * Callback third argument will be an instance of \Throwable
      * @return Event
      */
     public function scriptExecException(): Event
