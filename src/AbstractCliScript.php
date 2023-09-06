@@ -28,6 +28,15 @@ abstract class AbstractCliScript
     }
 
     /**
+     * Alias of exec method
+     * @return void
+     */
+    final public function burn(): void
+    {
+        $this->exec();
+    }
+
+    /**
      * @return void
      */
     abstract public function exec(): void;
