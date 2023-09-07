@@ -98,10 +98,12 @@ class CLI
         }
 
         // Process control signals
-        pcntl_signal(SIGTERM, [$this, "processControlSignalClose"]);
-        pcntl_signal(SIGINT, [$this, "processControlSignalClose"]);
-        pcntl_signal(SIGHUP, [$this, "processControlSignalClose"]);
-        pcntl_signal(SIGQUIT, [$this, "processControlSignalClose"]);
+        if (extension_loaded("pcntl")) {
+            pcntl_signal(SIGTERM, [$this, "processControlSignalClose"]);
+            pcntl_signal(SIGINT, [$this, "processControlSignalClose"]);
+            pcntl_signal(SIGHUP, [$this, "processControlSignalClose"]);
+            pcntl_signal(SIGQUIT, [$this, "processControlSignalClose"]);
+        }
     }
 
     /**
@@ -134,7 +136,9 @@ class CLI
      */
     public function onEveryLoop(): void
     {
-        pcntl_signal_dispatch();
+        if (extension_loaded("pcntl")) {
+            pcntl_signal_dispatch();
+        }
     }
 
     /**

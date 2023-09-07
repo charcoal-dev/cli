@@ -14,7 +14,6 @@
   ],
   "require": {
     "php": "^8.1",
-    "ext-pcntl": "*",
     "charcoal-dev/oop-base": "dev-main",
     "charcoal-dev/events-base": "dev-main",
     "charcoal-dev/filesystem": "dev-main"
