@@ -44,7 +44,6 @@ class CLI
         $this->events = new Events();
         $this->args = new Arguments();
         $this->flags = new Flags();
-        $this->execStartStamp = microtime(true);
 
         $argCount = -1;
         foreach ($args as $arg) {
@@ -188,6 +187,7 @@ class CLI
         }
 
         // Exec success signal
+        $this->execStartStamp = microtime(true);
         $execSuccess = false;
 
         try {
@@ -224,6 +224,11 @@ class CLI
             } catch (\RuntimeException $e) {
                 $this->events->scriptNotFound()->trigger([$this, $scriptClassname ?? ""]);
                 throw $e;
+            }
+
+            // Set time limit
+            if ($this->execScriptObject->timeLimit > 0) {
+                set_time_limit($this->execScriptObject->timeLimit);
             }
 
             // Script is loaded trigger

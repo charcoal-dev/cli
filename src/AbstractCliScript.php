@@ -23,9 +23,13 @@ abstract class AbstractCliScript
 {
     /**
      * @param \Charcoal\CLI\CLI $cli
+     * @param int $timeLimit
      */
-    public function __construct(protected readonly CLI $cli)
+    public function __construct(protected readonly CLI $cli, public readonly int $timeLimit = 30)
     {
+        if ($this->timeLimit < 0) {
+            throw new \InvalidArgumentException('Invalid CLI script time limit');
+        }
     }
 
     /**
