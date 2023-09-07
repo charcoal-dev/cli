@@ -228,6 +228,10 @@ class CLI
 
             // Set time limit
             if ($this->execScriptObject->timeLimit > 0) {
+                if (extension_loaded("pcntl")) {
+                    pcntl_alarm($this->execScriptObject->timeLimit);
+                }
+
                 set_time_limit($this->execScriptObject->timeLimit);
             }
 
