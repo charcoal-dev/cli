@@ -60,8 +60,8 @@ class CLI
             }
 
             // Set if a flag
-            if (preg_match('/^-{1,2}\w$/', $arg)) {
-                switch ($arg) {
+            if (preg_match('/^-{1,2}\w+$/', $arg)) {
+                switch (strtolower(ltrim($arg, "-"))) {
                     case "q":
                     case "quick":
                         $this->flags->set(Flags::QUICK);
