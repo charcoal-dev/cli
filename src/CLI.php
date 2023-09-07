@@ -31,8 +31,9 @@ class CLI
     public readonly Flags $flags;
 
     protected array $outputs = [];
-    protected ?string $execClassName = null;
+    protected ?string $execClassname = null;
     protected ?string $scriptName = null;
+    protected ?AbstractCliScript $execScriptObject = null;
 
     /**
      * @param \Charcoal\Filesystem\Directory $dir
@@ -95,6 +96,45 @@ class CLI
                 sprintf('Unacceptable passed argument format near "%s..."', substr($arg, 0, 8))
             );
         }
+
+        // Process control signals
+        pcntl_signal(SIGTERM, [$this, "processControlSignalClose"]);
+        pcntl_signal(SIGINT, [$this, "processControlSignalClose"]);
+        pcntl_signal(SIGHUP, [$this, "processControlSignalClose"]);
+        pcntl_signal(SIGQUIT, [$this, "processControlSignalClose"]);
+    }
+
+    /**
+     * @param int $sigId
+     * @return never
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public function onSignalClose(int $sigId): never
+    {
+        exit;
+    }
+
+    /**
+     * @param int $sigId
+     * @return void
+     */
+    final public function processControlSignalClose(int $sigId): void
+    {
+        if (isset($this->execScriptObject)) {
+            if (method_exists($this->execScriptObject, "onSignalCloseCallback")) {
+                $this->execScriptObject->onSignalCloseCallback($sigId);
+            }
+        }
+
+        $this->onSignalClose($sigId);
+    }
+
+    /**
+     * @return void
+     */
+    public function onEveryLoop(): void
+    {
+        pcntl_signal_dispatch();
     }
 
     /**
@@ -164,22 +204,22 @@ class CLI
                     );
                 }
 
-                $this->execClassName = $scriptClassname;
-                $scriptObject = new $scriptClassname($this);
+                $this->execClassname = $scriptClassname;
+                $this->execScriptObject = new $scriptClassname($this);
             } catch (\RuntimeException $e) {
                 $this->events->scriptNotFound()->trigger([$this, $scriptClassname ?? ""]);
                 throw $e;
             }
 
             // Script is loaded trigger
-            $this->events->scriptLoaded()->trigger([$this, $scriptObject]);
+            $this->events->scriptLoaded()->trigger([$this, $this->execScriptObject]);
 
             // Execute script
             try {
-                $scriptObject->exec();
+                $this->execScriptObject->exec();
                 $execSuccess = true;
             } catch (\Throwable $t) {
-                $this->events->scriptExecException()->trigger([$this, $scriptObject, $t]);
+                $this->events->scriptExecException()->trigger([$this, $this->execScriptObject, $t]);
                 throw $t;
             }
         } catch (\Throwable $t) {
@@ -195,7 +235,7 @@ class CLI
         }
 
         // After script exec event
-        $this->events->afterExec()->trigger([$this, $execSuccess, $scriptObject ?? null]);
+        $this->events->afterExec()->trigger([$this, $execSuccess, $this->execScriptObject]);
         $this->print("");
         $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartStamp, 4)));
         $this->printMemoryConsumption();
@@ -267,14 +307,13 @@ class CLI
     /**
      * @param string $data
      * @param bool $eol
-     * @param int $typewriter
      * @return void
      */
-    private function writeToOutputHandlers(string $data, bool $eol, int $typewriter = 0): void
+    private function writeToOutputHandlers(string $data, bool $eol): void
     {
         /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
         foreach ($this->outputs as $output) {
-            $output->write($data, $eol, $typewriter);
+            $output->write($data, $eol);
         }
     }
 

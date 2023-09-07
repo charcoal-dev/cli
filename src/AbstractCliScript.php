@@ -17,6 +17,7 @@ namespace Charcoal\CLI;
 /**
  * Class AbstractCliScript
  * @package Charcoal\CLI
+ * @method never onSignalCloseCallback(int $sigId)
  */
 abstract class AbstractCliScript
 {
@@ -25,6 +26,14 @@ abstract class AbstractCliScript
      */
     public function __construct(protected readonly CLI $cli)
     {
+    }
+
+    /**
+     * @return void
+     */
+    public function onEveryLoop(): void
+    {
+        $this->cli->onEveryLoop();
     }
 
     /**
