@@ -103,6 +103,9 @@ class CLI
             pcntl_signal(SIGINT, [$this, "processControlSignalClose"]);
             pcntl_signal(SIGHUP, [$this, "processControlSignalClose"]);
             pcntl_signal(SIGQUIT, [$this, "processControlSignalClose"]);
+
+            // For DIY implementations on SIGLARM:
+            pcntl_signal(SIGALRM, [$this, "processControlSignalAlarm"]);
         }
     }
 
@@ -114,6 +117,14 @@ class CLI
     public function onSignalClose(int $sigId): never
     {
         exit;
+    }
+
+    /**
+     * @return void
+     */
+    public function processControlSignalAlarm(): void
+    {
+        $this->processControlSignalClose(14); // 14=SIGALRM
     }
 
     /**
