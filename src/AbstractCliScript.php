@@ -17,7 +17,7 @@ namespace Charcoal\CLI;
 /**
  * Class AbstractCliScript
  * @package Charcoal\CLI
- * @method never onSignalCloseCallback(int $sigId)
+ * @method void onSignalCloseCallback(int $sigId)
  */
 abstract class AbstractCliScript
 {
