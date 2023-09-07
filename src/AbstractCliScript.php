@@ -21,15 +21,21 @@ namespace Charcoal\CLI;
  */
 abstract class AbstractCliScript
 {
+    /** @var int Set a execution time limit or 0 for infinite */
+    protected const TIME_LIMIT = 30;
+
+    public readonly int $timeLimit;
+
     /**
      * @param \Charcoal\CLI\CLI $cli
-     * @param int $timeLimit
      */
-    public function __construct(protected readonly CLI $cli, public readonly int $timeLimit = 30)
+    public function __construct(protected readonly CLI $cli)
     {
-        if ($this->timeLimit < 0) {
+        if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
             throw new \InvalidArgumentException('Invalid CLI script time limit');
         }
+
+        $this->timeLimit = static::TIME_LIMIT;
     }
 
     /**
