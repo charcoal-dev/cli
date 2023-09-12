@@ -56,6 +56,7 @@ class AnsiEscapeSeq
                     "goright" => sprintf("\e[%dC", intval($modifier[2] ?? 1)),
                     "goup" => sprintf("\e[%dA", intval($modifier[2] ?? 1)),
                     "godown" => sprintf("\e[%dB", intval($modifier[2] ?? 1)),
+                    "atlinestart" => "\e[G",
                     "clearline" => "\e[2K",
                     "trimleft" => "\e[1K",
                     "trimright" => "\e[K",
