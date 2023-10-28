@@ -49,8 +49,10 @@ class FileWriter extends AbstractOutputHandler
 
     public function endBuffer(): void
     {
-        fclose($this->fp);
-        $this->fp = null;
+        if ($this->fp) {
+            fclose($this->fp);
+            $this->fp = null;
+        }
     }
 
     public function getBufferedData(): null|string
