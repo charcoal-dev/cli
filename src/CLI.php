@@ -153,12 +153,28 @@ class CLI
 
     /**
      * @param \Charcoal\CLI\Console\AbstractOutputHandler $handler
+     * @param string|null $identifier
      * @return $this
      */
-    final public function addOutputHandler(AbstractOutputHandler $handler): static
+    final public function addOutputHandler(AbstractOutputHandler $handler, ?string $identifier): static
     {
-        $this->outputs[] = $handler;
+        $identifier = $identifier ?: $handler::class;
+        $this->outputs[$identifier] = $handler;
         return $this;
+    }
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    final public function removeOutputHandler(string $identifier): bool
+    {
+        if (isset($this->outputs[$identifier])) {
+            unset($this->outputs[$identifier]);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -266,7 +282,7 @@ class CLI
 
         /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
         foreach ($this->outputs as $output) {
-            $output->endBuffer($this);
+            $output->endBuffer();
         }
 
         exit();
