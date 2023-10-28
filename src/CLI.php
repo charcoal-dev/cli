@@ -111,15 +111,20 @@ class CLI
     /**
      * @param int $sigId
      * @return never
-     * @noinspection PhpUnusedParameterInspection
+     * @throws \Throwable
      */
     public function onSignalClose(int $sigId): never
     {
+        $this->events->scriptExecException()->trigger(
+            [$this, $this->execScriptObject, new \RuntimeException(sprintf("PCNTL signal close #%d", $sigId))]
+        );
+
         exit;
     }
 
     /**
      * @return void
+     * @throws \Throwable
      */
     public function processControlSignalAlarm(): void
     {
@@ -129,6 +134,7 @@ class CLI
     /**
      * @param int $sigId
      * @return void
+     * @throws \Throwable
      */
     final public function processControlSignalClose(int $sigId): void
     {
