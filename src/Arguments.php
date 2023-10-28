@@ -67,4 +67,12 @@ class Arguments implements \IteratorAggregate
     {
         return new \ArrayIterator($this->args);
     }
+
+    /**
+     * @return array
+     */
+    public function getAll(): array
+    {
+        return $this->args;
+    }
 }
