@@ -29,7 +29,7 @@ abstract class AbstractCliScript
     /**
      * @param \Charcoal\CLI\CLI $cli
      */
-    public function __construct(protected readonly CLI $cli)
+    public function __construct(public readonly CLI $cli)
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
             throw new \InvalidArgumentException('Invalid CLI script time limit');
