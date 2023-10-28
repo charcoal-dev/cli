@@ -27,16 +27,15 @@ abstract class AbstractOutputHandler
     protected string $eolChar = PHP_EOL;
 
     /**
-     * @param \Charcoal\CLI\CLI $cli
+     * @param \Charcoal\CLI\CLI|null $cli
      * @return void
      */
-    abstract public function startBuffer(CLI $cli): void;
+    abstract public function startBuffer(?CLI $cli = null): void;
 
     /**
-     * @param \Charcoal\CLI\CLI $cli
      * @return void
      */
-    abstract public function endBuffer(CLI $cli): void;
+    abstract public function endBuffer(): void;
 
     /**
      * @return string|null

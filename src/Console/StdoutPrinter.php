@@ -22,12 +22,14 @@ use Charcoal\CLI\CLI;
  */
 class StdoutPrinter extends AbstractOutputHandler
 {
-    public function startBuffer(CLI $cli): void
+    public function startBuffer(?CLI $cli = null): void
     {
-        $this->useAnsiCodes = $cli->flags->useANSI();
+        if($cli) {
+            $this->useAnsiCodes = $cli->flags->useANSI();
+        }
     }
 
-    public function endBuffer(CLI $cli): void
+    public function endBuffer(): void
     {
     }
 

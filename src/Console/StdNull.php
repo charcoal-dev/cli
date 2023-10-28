@@ -22,16 +22,11 @@ use Charcoal\CLI\CLI;
  */
 class StdNull extends AbstractOutputHandler
 {
-    /**
-     * @param \Charcoal\CLI\CLI $cli
-     * @return void
-     */
-    public function startBuffer(CLI $cli): void
+    public function startBuffer(?CLI $cli = null): void
     {
-        $this->useAnsiCodes = $cli->flags->useANSI();
     }
 
-    public function endBuffer(CLI $cli): void
+    public function endBuffer(): void
     {
     }
 

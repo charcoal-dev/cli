@@ -38,12 +38,16 @@ class FileWriter extends AbstractOutputHandler
         }
     }
 
-    public function startBuffer(CLI $cli): void
+    public function startBuffer(?CLI $cli = null): void
     {
+        if ($cli) {
+            $this->useAnsiCodes = $cli->flags->useANSI();
+        }
+
         $this->fp = fopen($this->file->path, $this->append ? "a" : "w");
     }
 
-    public function endBuffer(CLI $cli): void
+    public function endBuffer(): void
     {
         fclose($this->fp);
         $this->fp = null;

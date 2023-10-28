@@ -26,19 +26,22 @@ class StringBuffer extends AbstractOutputHandler
     private ?string $finished = null;
 
     /**
-     * @param \Charcoal\CLI\CLI $cli
+     * @param \Charcoal\CLI\CLI|null $cli
      * @return void
      */
-    public function startBuffer(CLI $cli): void
+    public function startBuffer(?CLI $cli = null): void
     {
+        if($cli) {
+            $this->useAnsiCodes = $cli->flags->useANSI();
+        }
+
         $this->buffer = "";
     }
 
     /**
-     * @param \Charcoal\CLI\CLI $cli
      * @return void
      */
-    public function endBuffer(CLI $cli): void
+    public function endBuffer(): void
     {
         $this->finished = $this->buffer;
         $this->buffer = null;
