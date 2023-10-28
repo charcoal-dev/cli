@@ -162,7 +162,7 @@ class CLI
      * @param string|null $identifier
      * @return $this
      */
-    final public function addOutputHandler(AbstractOutputHandler $handler, ?string $identifier): static
+    final public function addOutputHandler(AbstractOutputHandler $handler, ?string $identifier = null): static
     {
         $identifier = $identifier ?: $handler::class;
         $this->outputs[$identifier] = $handler;
