@@ -150,11 +150,19 @@ class CLI
     /**
      * @return void
      */
-    public function onEveryLoop(): void
+    final protected function catchPcntlSignal(): void
     {
         if (extension_loaded("pcntl")) {
             pcntl_signal_dispatch();
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function onEveryLoop(): void
+    {
+        $this->catchPcntlSignal();
     }
 
     /**
