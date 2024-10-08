@@ -151,7 +151,7 @@ class CLI
      * Catching these signals is crucial for ensuring graceful shutdowns and proper resource management.
      * @return void
      */
-    final protected function catchPcntlSignal(): void
+    final public function catchPcntlSignal(): void
     {
         if (extension_loaded("pcntl")) {
             pcntl_signal_dispatch();
