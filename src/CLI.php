@@ -109,20 +109,6 @@ class CLI
     }
 
     /**
-     * @param int $sigId
-     * @return never
-     * @throws \Throwable
-     */
-    public function onSignalClose(int $sigId): never
-    {
-        $this->events->scriptExecException()->trigger(
-            [$this, $this->execScriptObject, new \RuntimeException(sprintf("PCNTL signal close #%d", $sigId))]
-        );
-
-        exit;
-    }
-
-    /**
      * @return void
      * @throws \Throwable
      */
@@ -148,6 +134,21 @@ class CLI
     }
 
     /**
+     * @param int $sigId
+     * @return never
+     * @throws \Throwable
+     */
+    public function onSignalClose(int $sigId): never
+    {
+        $this->events->pcntlSignalClose()->trigger([$sigId, $this, $this->execScriptObject]);
+
+        // Terminate Execution!
+        exit;
+    }
+
+    /**
+     * This method should be implemented in the middle of your operation flow to handle SIGTERM or other PCNTL signals.
+     * Catching these signals is crucial for ensuring graceful shutdowns and proper resource management.
      * @return void
      */
     final protected function catchPcntlSignal(): void

@@ -25,7 +25,7 @@ class Events
 {
     private readonly EventsRegistry $registry;
 
-    public function __construct()
+    final public function __construct()
     {
         $this->registry = new EventsRegistry();
     }
@@ -34,7 +34,7 @@ class Events
      * Callback first argument is instance of CLI obj
      * @return Event
      */
-    public function beforeExec(): Event
+    final public function beforeExec(): Event
     {
         return $this->registry->on("before_exec");
     }
@@ -45,7 +45,7 @@ class Events
      * Callback third argument is instance of AbstractCliScript or NULL
      * @return Event
      */
-    public function afterExec(): Event
+    final public function afterExec(): Event
     {
         return $this->registry->on("after_exec");
     }
@@ -55,7 +55,7 @@ class Events
      * Callback second argument is string classname
      * @return Event
      */
-    public function scriptNotFound(): Event
+    final public function scriptNotFound(): Event
     {
         return $this->registry->on("script_not_found");
     }
@@ -65,7 +65,7 @@ class Events
      * Callback second argument is instance of AbstractCliScript
      * @return Event
      */
-    public function scriptLoaded(): Event
+    final public function scriptLoaded(): Event
     {
         return $this->registry->on("script_loaded");
     }
@@ -76,9 +76,20 @@ class Events
      * Callback third argument will be an instance of \Throwable
      * @return Event
      */
-    public function scriptExecException(): Event
+    final public function scriptExecException(): Event
     {
         return $this->registry->on("script_exec_exception");
+    }
+
+    /**
+     * Callback first argument is int id of PCNTL closing signal
+     * Callback second argument will be an instance of CLI
+     * Callback third argument will be an instance of AbstractCliScript
+     * @return Event
+     */
+    final public function pcntlSignalClose(): Event
+    {
+        return $this->registry->on("script_pcntl_close");
     }
 }
 
