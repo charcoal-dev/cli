@@ -86,7 +86,7 @@ class CLI
             }
 
             // Append to arguments
-            if (preg_match('/^-{0,2}\w+(=[\w@.\-]+)?$/', $arg)) {
+            if (preg_match('/^-{0,2}\w+(=[\w@.,\-]+)?$/', $arg)) {
                 $arg = explode("=", $arg);
                 $this->args->set(ltrim($arg[0], "-"), $arg[1] ?? null);
                 continue;
