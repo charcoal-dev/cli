@@ -35,6 +35,8 @@ class CLI
     protected ?string $scriptName = null;
     protected ?AbstractCliScript $execScriptObject = null;
 
+    private int $exitCode = 0;
+
     /**
      * @param \Charcoal\Filesystem\Directory $dir
      * @param array $args
@@ -109,6 +111,15 @@ class CLI
     }
 
     /**
+     * @param int $exitCode
+     * @return void
+     */
+    public function setExitCode(int $exitCode): void
+    {
+        $this->exitCode = $exitCode;
+    }
+
+    /**
      * @return void
      * @throws \Throwable
      */
@@ -143,7 +154,7 @@ class CLI
         $this->events->pcntlSignalClose()->trigger([$sigId, $this, $this->execScriptObject]);
 
         // Terminate Execution!
-        exit;
+        exit(128 + $sigId);
     }
 
     /**
@@ -300,7 +311,7 @@ class CLI
             $output->endBuffer();
         }
 
-        exit();
+        exit($this->exitCode);
     }
 
     /**
