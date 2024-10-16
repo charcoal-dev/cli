@@ -43,7 +43,7 @@ class Arguments implements \IteratorAggregate
      */
     public function has(string $name): bool
     {
-        return in_array(strtolower($name), $this->args);
+        return array_key_exists(strtolower($name), $this->args);
     }
 
     /**
