@@ -281,7 +281,7 @@ class CLI
                 $this->execClassname = $scriptClassname;
                 $this->execScriptObject = new $scriptClassname($this);
             } catch (\RuntimeException $e) {
-                $this->events->scriptNotFound()->trigger([$this, $scriptClassname ?? ""]);
+                $this->events->scriptNotFound()->trigger([$this]);
                 throw $e;
             }
 
