@@ -15,9 +15,7 @@ declare(strict_types=1);
 namespace Charcoal\CLI;
 
 use Charcoal\CLI\Console\AbstractOutputHandler;
-use Charcoal\Filesystem\Directory;
 use Charcoal\OOP\CaseStyles;
-use Charcoal\OOP\OOP;
 
 /**
  * Class CLI
@@ -27,22 +25,32 @@ class CLI
 {
     public readonly Events $events;
     public readonly Arguments $args;
-    public readonly float $execStartStamp;
     public readonly Flags $flags;
 
-    protected array $outputs = [];
-    protected ?string $execClassname = null;
-    protected ?string $scriptName = null;
-    protected ?AbstractCliScript $execScriptObject = null;
+    protected readonly ?string $argScriptName;
+    protected readonly ?string $argClassname;
+    protected readonly ?string $execClassname;
+    protected readonly AbstractCliScript $execScriptObject;
+    public readonly float $execStartedOn;
 
+    protected array $outputBuffers = [];
     private int $exitCode = 0;
 
     /**
-     * @param \Charcoal\Filesystem\Directory $dir
+     * @param string $scriptsNamespace
      * @param array $args
+     * @param string|null $defaultScriptName
      */
-    public function __construct(private readonly Directory $dir, array $args)
+    public function __construct(
+        protected readonly string $scriptsNamespace,
+        array                     $args,
+        public readonly ?string   $defaultScriptName,
+    )
     {
+        if (!preg_match('/^\w+(\\\\\w+)*(\\\\\*)?$/i', $this->scriptsNamespace)) {
+            throw new \InvalidArgumentException('Scripts namespace contains an illegal character');
+        }
+
         $this->events = new Events();
         $this->args = new Arguments();
         $this->flags = new Flags();
@@ -55,10 +63,14 @@ class CLI
 
             $argCount++;
             if ($argCount === 0) {
-                if (preg_match('/^\w+$/', $arg)) {
-                    $this->scriptName = $arg;
+                if (preg_match('/^\w+(?:\/\w+)*$/', $arg)) {
+                    $this->argScriptName = $arg;
+                    $this->argClassname = $this->scriptNameToClassname($arg);
                     continue;
                 }
+
+                $this->argScriptName = null;
+                $this->argClassname = null;
             }
 
             // Set if a flag
@@ -105,7 +117,7 @@ class CLI
             pcntl_signal(SIGHUP, [$this, "processControlSignalClose"]);
             pcntl_signal(SIGQUIT, [$this, "processControlSignalClose"]);
 
-            // For DIY implementations on SIGLARM:
+            // For DIY implementations on SIGALRM:
             pcntl_signal(SIGALRM, [$this, "processControlSignalAlarm"]);
         }
     }
@@ -185,7 +197,7 @@ class CLI
     final public function addOutputHandler(AbstractOutputHandler $handler, ?string $identifier = null): static
     {
         $identifier = $identifier ?: $handler::class;
-        $this->outputs[$identifier] = $handler;
+        $this->outputBuffers[$identifier] = $handler;
         return $this;
     }
 
@@ -195,8 +207,8 @@ class CLI
      */
     final public function removeOutputHandler(string $identifier): bool
     {
-        if (isset($this->outputs[$identifier])) {
-            unset($this->outputs[$identifier]);
+        if (isset($this->outputBuffers[$identifier])) {
+            unset($this->outputBuffers[$identifier]);
             return true;
         }
 
@@ -219,45 +231,50 @@ class CLI
      */
     final public function exec(): never
     {
-        if (!$this->outputs) {
+        if (!$this->outputBuffers) {
             throw new \UnexpectedValueException('There are no output handlers configured');
         }
 
         /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
-        foreach ($this->outputs as $output) {
+        foreach ($this->outputBuffers as $output) {
             $output->startBuffer($this);
         }
 
         // Exec success signal
-        $this->execStartStamp = microtime(true);
+        $this->execStartedOn = microtime(true);
         $execSuccess = false;
 
         try {
-            // Scripts namespace autoloader
-            $scriptsDirectoryPath = $this->dir->path;
-            spl_autoload_register(function (string $class) use ($scriptsDirectoryPath) {
-                if (preg_match('/^scripts\\\\\w+$/', $class)) {
-                    $className = OOP::baseClassName($class);
-                    $classFilename = CaseStyles::snake_case($className);
-                    $classFilepath = $scriptsDirectoryPath . DIRECTORY_SEPARATOR . $classFilename . ".php";
-                    if (@is_file($classFilepath)) {
-                        @include_once($classFilepath);
-                    }
-                }
-            });
-
             // Before execution starts
             $this->events->beforeExec()->trigger([$this]);
 
             // Load script
             try {
-                $scriptName = $this->scriptName ?? "default";
-                $scriptClassname = "scripts\\" . CaseStyles::snake_case($scriptName);
-                if (!class_exists($scriptClassname)) {
-                    throw new \RuntimeException(sprintf('Script class "%s" does not exist', $scriptClassname));
-                } elseif (!is_a($scriptClassname, AbstractCliScript::class, true)) {
+                $scriptClassname = null;
+                if ($this->argClassname) {
+                    if (!class_exists($this->argClassname)) {
+                        throw new \RuntimeException(sprintf('Script class for "%s" does not exist', $this->argScriptName));
+                    }
+
+                    $scriptClassname = $this->argClassname;
+                }
+
+                if (!$scriptClassname && $this->defaultScriptName) {
+                    $defaultScriptClassname = $this->scriptNameToClassname($this->defaultScriptName);
+                    if (!class_exists($defaultScriptClassname)) {
+                        throw new \RuntimeException(sprintf('Default script class "%s" does not exist', $this->defaultScriptName));
+                    }
+
+                    $scriptClassname = $defaultScriptClassname;
+                }
+
+                if (!$scriptClassname) {
+                    throw new \RuntimeException("No script specified to execute!");
+                }
+
+                if (!is_a($scriptClassname, AbstractCliScript::class, true)) {
                     throw new \RuntimeException(
-                        sprintf('Script class "%s" must extend "%s" class', $scriptClassname, AbstractCliScript::class)
+                        sprintf('Script class for "%s" must extend "%s" class', $scriptClassname, AbstractCliScript::class)
                     );
                 }
 
@@ -303,15 +320,26 @@ class CLI
         // After script exec event
         $this->events->afterExec()->trigger([$this, $execSuccess, $this->execScriptObject]);
         $this->print("");
-        $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartStamp, 4)));
+        $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartedOn, 4)));
         $this->printMemoryConsumption();
 
         /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
-        foreach ($this->outputs as $output) {
+        foreach ($this->outputBuffers as $output) {
             $output->endBuffer();
         }
 
         exit($this->exitCode);
+    }
+
+    /**
+     * @param string $arg
+     * @return string
+     */
+    private function scriptNameToClassname(string $arg): string
+    {
+        return $this->scriptsNamespace . "\\" . implode("\\", array_map(function ($part) {
+                return CaseStyles::PascalCase($part);
+            }, explode("/", $arg)));
     }
 
     /**
@@ -378,7 +406,7 @@ class CLI
     private function writeToOutputHandlers(string $data, bool $eol): void
     {
         /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
-        foreach ($this->outputs as $output) {
+        foreach ($this->outputBuffers as $output) {
             $output->write($data, $eol);
         }
     }
