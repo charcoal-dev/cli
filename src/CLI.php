@@ -163,7 +163,7 @@ class CLI
      */
     public function onSignalClose(int $sigId): never
     {
-        $this->events->pcntlSignalClose()->trigger([$sigId, $this, $this->execScriptObject]);
+        $this->events->pcntlSignalClose()->trigger([$sigId, $this]);
 
         // Terminate Execution!
         exit(128 + $sigId);
@@ -295,14 +295,14 @@ class CLI
             }
 
             // Script is loaded trigger
-            $this->events->scriptLoaded()->trigger([$this, $this->execScriptObject]);
+            $this->events->scriptLoaded()->trigger([$this]);
 
             // Execute script
             try {
                 $this->execScriptObject->exec();
                 $execSuccess = true;
             } catch (\Throwable $t) {
-                $this->events->scriptExecException()->trigger([$this, $this->execScriptObject, $t]);
+                $this->events->scriptExecException()->trigger([$this, $t]);
                 throw $t;
             }
         } catch (\Throwable $t) {
@@ -318,7 +318,7 @@ class CLI
         }
 
         // After script exec event
-        $this->events->afterExec()->trigger([$this, $execSuccess, $this->execScriptObject]);
+        $this->events->afterExec()->trigger([$this, $execSuccess]);
         $this->print("");
         $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartedOn, 4)));
         $this->printMemoryConsumption();

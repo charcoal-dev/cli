@@ -41,8 +41,7 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is boolean: if script exec method finishes without any thrown exceptions, its value is TRUE otherwise FALSE
-     * Callback third argument is instance of AbstractCliScript or NULL
+     * Callback second argument is boolean: if script exec method finishes without any thrown exceptions
      * @return Event
      */
     final public function afterExec(): Event
@@ -52,7 +51,6 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is string classname
      * @return Event
      */
     final public function scriptNotFound(): Event
@@ -62,7 +60,6 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is instance of AbstractCliScript
      * @return Event
      */
     final public function scriptLoaded(): Event
@@ -72,7 +69,6 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument will be an instance of AbstractCliScript
      * Callback third argument will be an instance of \Throwable
      * @return Event
      */
@@ -84,7 +80,6 @@ class Events
     /**
      * Callback first argument is int id of PCNTL closing signal
      * Callback second argument will be an instance of CLI
-     * Callback third argument will be an instance of AbstractCliScript
      * @return Event
      */
     final public function pcntlSignalClose(): Event
