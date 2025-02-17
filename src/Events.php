@@ -41,16 +41,7 @@ class Events
 
     /**
      * Callback first argument is instance of CLI obj
-     * Callback second argument is boolean: if script exec method finishes without any thrown exceptions
-     * @return Event
-     */
-    final public function afterExec(): Event
-    {
-        return $this->registry->on("after_exec");
-    }
-
-    /**
-     * Callback first argument is instance of CLI obj
+     * Callback second argument is string script classname or NULL
      * @return Event
      */
     final public function scriptNotFound(): Event
@@ -75,6 +66,16 @@ class Events
     final public function scriptExecException(): Event
     {
         return $this->registry->on("script_exec_exception");
+    }
+
+    /**
+     * Callback first argument is instance of CLI obj
+     * Callback second argument is boolean: if script exec method finishes without any thrown exceptions
+     * @return Event
+     */
+    final public function afterExec(): Event
+    {
+        return $this->registry->on("after_exec");
     }
 
     /**
