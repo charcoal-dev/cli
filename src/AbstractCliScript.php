@@ -126,20 +126,27 @@ abstract class AbstractCliScript
 
     /**
      * @param string $line
-     * @return string|bool
+     * @param int $timeout
+     * @return string
      */
-    final protected function requireInput(string $line): string|bool
+    final protected function requireInput(string $line, int $timeout = 300): string
     {
         $this->cli->inline(trim($line) . " ");
-        return $this->waitForInput();
+        return $this->waitForInput($timeout);
     }
 
     /**
-     * @return string|bool
+     * @param int $timeout
+     * @return string
      */
-    final protected function waitForInput(): string|bool
+    final protected function waitForInput(int $timeout = 300): string
     {
+        $startedOn = time();
         while (true) {
+            if ($timeout > 0 && (time() - $startedOn) > $timeout) {
+                throw new \RuntimeException("Input stream timed out after $timeout seconds");
+            }
+
             $input = fgets(STDIN);
             if ($input === false) {
                 continue;
