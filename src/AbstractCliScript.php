@@ -139,7 +139,26 @@ abstract class AbstractCliScript
      */
     final protected function waitForInput(): string|bool
     {
-        return trim(fgets(STDIN));
+        while (true) {
+            $input = fgets(STDIN);
+            if ($input === false) {
+                continue;
+            }
+
+            $input = trim($input);
+            $clean = "";
+            for ($i = 0, $len = strlen($input); $i < $len; $i++) {
+                $ch = $input[$i];
+                if ($ch === "\x08" || ord($ch) === 127) {
+                    $clean = substr($clean, 0, -1);
+                    continue;
+                }
+
+                $clean .= $ch;
+            }
+
+            return $clean;
+        }
     }
 
     /**
