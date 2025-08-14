@@ -1,24 +1,18 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI;
+namespace Charcoal\Cli\Display;
 
 /**
  * Class Banners
- * @package Charcoal\CLI
+ * @package Charcoal\Cli
  */
-class Banners
+readonly class Banners
 {
     /**
      * @param string $caption
@@ -41,8 +35,8 @@ class Banners
      * @param string $name
      */
     public function __construct(
-        public readonly array  $lines,
-        public readonly string $name
+        public array  $lines,
+        public string $name
     )
     {
     }
