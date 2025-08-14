@@ -1,25 +1,19 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI\Console;
+namespace Charcoal\Cli\Output;
 
-use Charcoal\CLI\CLI;
+use Charcoal\Cli\Console;
 use Charcoal\Filesystem\File;
 
 /**
  * Class FileWriter
- * @package Charcoal\CLI\Console
+ * @package Charcoal\Cli\Output
  */
 class FileWriter extends AbstractOutputHandler
 {
@@ -27,7 +21,7 @@ class FileWriter extends AbstractOutputHandler
     private mixed $fp = null;
 
     /**
-     * @param \Charcoal\Filesystem\File $file
+     * @param File $file
      * @param bool $append
      * @throws \Charcoal\Filesystem\Exception\FilesystemException
      */
@@ -38,7 +32,11 @@ class FileWriter extends AbstractOutputHandler
         }
     }
 
-    public function startBuffer(?CLI $cli = null): void
+    /**
+     * @param Console|null $cli
+     * @return void
+     */
+    public function startBuffer(?Console $cli = null): void
     {
         if ($cli) {
             $this->useAnsiCodes = $cli->flags->useANSI();
@@ -47,6 +45,9 @@ class FileWriter extends AbstractOutputHandler
         $this->fp = fopen($this->file->path, $this->append ? "a" : "w");
     }
 
+    /**
+     * @return void
+     */
     public function endBuffer(): void
     {
         if ($this->fp) {
@@ -55,16 +56,27 @@ class FileWriter extends AbstractOutputHandler
         }
     }
 
+    /**
+     * @return string|null
+     */
     public function getBufferedData(): null|string
     {
         return null;
     }
 
+    /**
+     * @return bool
+     */
     public function isActive(): bool
     {
         return is_resource($this->fp);
     }
 
+    /**
+     * @param string $input
+     * @param bool $eol
+     * @return void
+     */
     public function write(string $input, bool $eol): void
     {
         if (!$this->fp) {
