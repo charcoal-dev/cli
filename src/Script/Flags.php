@@ -1,35 +1,24 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI;
+namespace Charcoal\Cli\Script;
 
 /**
  * Class Flags
- * @package Charcoal\CLI
+ * @package Charcoal\Cli\Script
  */
 class Flags
 {
-    /** @var int Quick execution flag */
-    public const QUICK = 1 << 0;
-    /** @var int Force execution flag */
-    public const FORCE = 1 << 1;
-    /** @var int Debug mode flag */
-    public const DEBUG = 1 << 2;
-    /** @var int Verbose mode flag */
-    public const VERBOSE = 1 << 3;
-    /** @var int Supports ANSI escape sequence */
-    public const ANSI = 1 << 4;
+    public const int QUICK = 1 << 0;
+    public const int FORCE = 1 << 1;
+    public const int DEBUG = 1 << 2;
+    public const int VERBOSE = 1 << 3;
+    public const int ANSI = 1 << 4;
 
     /** @var int */
     private int $flags = 0;

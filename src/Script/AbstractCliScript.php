@@ -1,35 +1,31 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI;
+namespace Charcoal\Cli\Script;
+
+use Charcoal\Cli\Console;
 
 /**
  * Class AbstractCliScript
- * @package Charcoal\CLI
+ * @package Charcoal\Cli\Script
  * @method void onSignalCloseCallback(int $sigId)
  */
 abstract class AbstractCliScript
 {
-    /** @var int Set a execution time limit or 0 for infinite */
-    protected const TIME_LIMIT = 30;
+    /** @var int Set an execution time limit or 0 for infinite */
+    protected const int TIME_LIMIT = 30;
 
     public readonly int $timeLimit;
 
     /**
-     * @param \Charcoal\CLI\CLI $cli
+     * @param Console $cli
      */
-    public function __construct(public readonly CLI $cli)
+    public function __construct(public readonly Console $cli)
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
             throw new \InvalidArgumentException('Invalid CLI script time limit');
@@ -169,7 +165,7 @@ abstract class AbstractCliScript
     }
 
     /**
-     * @return \Charcoal\CLI\Arguments
+     * @return Arguments
      */
     final protected function args(): Arguments
     {
