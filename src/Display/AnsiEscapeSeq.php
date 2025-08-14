@@ -10,7 +10,7 @@ namespace Charcoal\Cli\Display;
 
 /**
  * Class AnsiEscapeSeq
- * @package Charcoal\Cli
+ * @package Charcoal\Cli\Display
  */
 class AnsiEscapeSeq
 {

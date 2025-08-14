@@ -10,7 +10,7 @@ namespace Charcoal\Cli\Display;
 
 /**
  * Class Banners
- * @package Charcoal\Cli
+ * @package Charcoal\Cli\Display
  */
 readonly class Banners
 {
