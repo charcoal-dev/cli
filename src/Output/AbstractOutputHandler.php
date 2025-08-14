@@ -1,25 +1,19 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI\Console;
+namespace Charcoal\Cli\Output;
 
-use Charcoal\CLI\AnsiEscapeSeq;
-use Charcoal\CLI\CLI;
+use Charcoal\Cli\Console;
+use Charcoal\Cli\Display\AnsiEscapeSeq;
 
 /**
  * Class AbstractOutputHandler
- * @package Charcoal\CLI\Console
+ * @package Charcoal\Cli\Output
  */
 abstract class AbstractOutputHandler
 {
@@ -27,10 +21,10 @@ abstract class AbstractOutputHandler
     protected string $eolChar = PHP_EOL;
 
     /**
-     * @param \Charcoal\CLI\CLI|null $cli
+     * @param Console|null $cli
      * @return void
      */
-    abstract public function startBuffer(?CLI $cli = null): void;
+    abstract public function startBuffer(?Console $cli = null): void;
 
     /**
      * @return void
