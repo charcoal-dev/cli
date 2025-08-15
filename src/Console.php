@@ -1,29 +1,33 @@
 <?php
-/*
- * This file is a part of "charcoal-dev/cli" package.
- * https://github.com/charcoal-dev/cli
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/charcoal-dev/cli/blob/main/LICENSE
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
  */
 
 declare(strict_types=1);
 
-namespace Charcoal\CLI;
+namespace Charcoal\Cli;
 
-use Charcoal\CLI\Console\AbstractOutputHandler;
-use Charcoal\OOP\CaseStyles;
+use Charcoal\Base\Support\CaseStyle;
+use Charcoal\Cli\Events\ConsoleEvents;
+use Charcoal\Cli\Events\State\ExecutionState;
+use Charcoal\Cli\Events\State\ExecutionStateChange;
+use Charcoal\Cli\Events\Terminate\ExceptionCaught;
+use Charcoal\Cli\Events\Terminate\PcntlSignalClose;
+use Charcoal\Cli\Output\AbstractOutputHandler;
+use Charcoal\Cli\Script\AbstractCliScript;
+use Charcoal\Cli\Script\Arguments;
+use Charcoal\Cli\Script\Flags;
+use Charcoal\Events\Contracts\EventStoreOwnerInterface;
 
 /**
- * Class CLI
- * @package Charcoal\CLI
+ * Class Console
+ * @package Charcoal\Cli
  */
-class CLI
+class Console implements EventStoreOwnerInterface
 {
-    public readonly Events $events;
+    protected readonly string $eventContextKey;
+    protected readonly ConsoleEvents $events;
     public readonly Arguments $args;
     public readonly Flags $flags;
 
@@ -51,7 +55,8 @@ class CLI
             throw new \InvalidArgumentException('Scripts namespace contains an illegal character');
         }
 
-        $this->events = new Events();
+        $this->eventContextKey = static::class;
+        $this->events = new ConsoleEvents($this);
         $this->args = new Arguments();
         $this->flags = new Flags();
 
@@ -163,7 +168,7 @@ class CLI
      */
     public function onSignalClose(int $sigId): never
     {
-        $this->events->pcntlSignalClose()->trigger([$sigId, $this]);
+        ConsoleEvents::getEvent($this)->dispatch(new PcntlSignalClose($sigId));
 
         // Terminate Execution!
         exit(128 + $sigId);
@@ -190,7 +195,7 @@ class CLI
     }
 
     /**
-     * @param \Charcoal\CLI\Console\AbstractOutputHandler $handler
+     * @param \Charcoal\Cli\Output\AbstractOutputHandler $handler
      * @param string|null $identifier
      * @return $this
      */
@@ -216,16 +221,6 @@ class CLI
     }
 
     /**
-     * Alias of "exec" method
-     * @return never
-     * @throws \Throwable
-     */
-    final public function burn(): never
-    {
-        $this->exec();
-    }
-
-    /**
      * @return never
      * @throws \Throwable
      */
@@ -235,7 +230,7 @@ class CLI
             throw new \UnexpectedValueException('There are no output handlers configured');
         }
 
-        /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
+        /** @var \Charcoal\Cli\Output\AbstractOutputHandler $output */
         foreach ($this->outputBuffers as $output) {
             $output->startBuffer($this);
         }
@@ -245,8 +240,8 @@ class CLI
         $execSuccess = false;
 
         try {
-            // Before execution starts
-            $this->events->beforeExec()->trigger([$this]);
+            // Preparing to execute script
+            ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Prepare));
 
             // Load script
             try {
@@ -281,7 +276,11 @@ class CLI
                 $this->execClassname = $scriptClassname;
                 $this->execScriptObject = new $scriptClassname($this);
             } catch (\RuntimeException $e) {
-                $this->events->scriptNotFound()->trigger([$this, $scriptClassname]);
+                ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(
+                    ExecutionState::ScriptNotFound,
+                    $scriptClassname
+                ));
+
                 throw $e;
             }
 
@@ -295,14 +294,14 @@ class CLI
             }
 
             // Script is loaded trigger
-            $this->events->scriptLoaded()->trigger([$this]);
+            ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Ready));
 
             // Execute script
             try {
                 $this->execScriptObject->exec();
                 $execSuccess = true;
             } catch (\Throwable $t) {
-                $this->events->scriptExecException()->trigger([$this, $t]);
+                ConsoleEvents::getEvent($this)->dispatch(new ExceptionCaught($t));
                 throw $t;
             }
         } catch (\Throwable $t) {
@@ -318,12 +317,15 @@ class CLI
         }
 
         // After script exec event
-        $this->events->afterExec()->trigger([$this, $execSuccess]);
+
+        ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Completed,
+            isSuccess: $execSuccess));
+
         $this->print("");
         $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartedOn, 4)));
         $this->printMemoryConsumption();
 
-        /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
+        /** @var \Charcoal\Cli\Output\AbstractOutputHandler $output */
         foreach ($this->outputBuffers as $output) {
             $output->endBuffer();
         }
@@ -338,7 +340,7 @@ class CLI
     private function scriptNameToClassname(string $arg): string
     {
         return $this->scriptsNamespace . "\\" . implode("\\", array_map(function ($part) {
-                return CaseStyles::PascalCase($part);
+                return CaseStyle::PASCAL_CASE->from($part);
             }, explode("/", $arg)));
     }
 
@@ -405,7 +407,7 @@ class CLI
      */
     private function writeToOutputHandlers(string $data, bool $eol): void
     {
-        /** @var \Charcoal\CLI\Console\AbstractOutputHandler $output */
+        /** @var \Charcoal\Cli\Output\AbstractOutputHandler $output */
         foreach ($this->outputBuffers as $output) {
             $output->write($data, $eol);
         }
@@ -499,5 +501,13 @@ class CLI
             $this->print($tabs . "{red}Caused By:{/}");
             $this->exception2Str($t->getPrevious(), $tabIndex + 1);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function eventsUniqueContextKey(): string
+    {
+        return $this->eventContextKey;
     }
 }
