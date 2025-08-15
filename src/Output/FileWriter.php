@@ -23,7 +23,7 @@ class FileWriter extends AbstractOutputHandler
     /**
      * @param File $file
      * @param bool $append
-     * @throws \Charcoal\Filesystem\Exception\FilesystemException
+     * @throws \Charcoal\Filesystem\Exceptions\FilesystemException
      */
     public function __construct(public readonly File $file, public readonly bool $append)
     {
