@@ -8,8 +8,9 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Output;
 
+use Charcoal\Base\Support\ErrorHelper;
 use Charcoal\Cli\Console;
-use Charcoal\Filesystem\File;
+use Charcoal\Filesystem\Path\FilePath;
 
 /**
  * Class FileWriter
@@ -21,13 +22,12 @@ class FileWriter extends AbstractOutputHandler
     private mixed $fp = null;
 
     /**
-     * @param File $file
+     * @param FilePath $file
      * @param bool $append
-     * @throws \Charcoal\Filesystem\Exceptions\FilesystemException
      */
-    public function __construct(public readonly File $file, public readonly bool $append)
+    public function __construct(public readonly FilePath $file, public readonly bool $append)
     {
-        if (!$this->file->isWritable()) {
+        if (!$this->file->writable) {
             throw new \UnexpectedValueException('Logger file is not writable');
         }
     }
@@ -42,7 +42,7 @@ class FileWriter extends AbstractOutputHandler
             $this->useAnsiCodes = $cli->flags->useANSI();
         }
 
-        $this->fp = fopen($this->file->path, $this->append ? "a" : "w");
+        $this->fp = fopen($this->file->absolute, $this->append ? "a" : "w");
     }
 
     /**
@@ -83,6 +83,10 @@ class FileWriter extends AbstractOutputHandler
             return;
         }
 
-        fwrite($this->fp, $this->getAnsiFilteredString($input, $eol) . ($eol ? $this->eolChar : ""));
+        error_clear_last();
+        @fwrite($this->fp, $this->getAnsiFilteredString($input, $eol) . ($eol ? $this->eolChar : ""));
+        if ($error = ErrorHelper::lastErrorToRuntimeException()) {
+            throw $error;
+        }
     }
 }
