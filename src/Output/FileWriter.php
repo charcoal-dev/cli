@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Output;
 
-use Charcoal\Base\Support\ErrorHelper;
+use Charcoal\Base\Support\Helpers\ErrorHelper;
 use Charcoal\Cli\Console;
 use Charcoal\Filesystem\Path\FilePath;
 
