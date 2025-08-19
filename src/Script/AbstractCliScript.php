@@ -8,7 +8,10 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Script;
 
+use Charcoal\Base\Support\Helpers\ObjectHelper;
 use Charcoal\Cli\Console;
+use Charcoal\Cli\Contracts\Ipc\IpcDependentScriptInterface;
+use Charcoal\Cli\Enums\ExecutionState;
 
 /**
  * Class AbstractCliScript
@@ -20,18 +23,34 @@ abstract class AbstractCliScript
     /** @var int Set an execution time limit or 0 for infinite */
     protected const int TIME_LIMIT = 30;
 
+    public readonly int $startedOn;
     public readonly int $timeLimit;
+    protected ExecutionState $state;
 
     /**
      * @param Console $cli
+     * @param ExecutionState $initialState
      */
-    public function __construct(public readonly Console $cli)
+    public function __construct(
+        public readonly Console $cli,
+        ExecutionState          $initialState = ExecutionState::STARTED)
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
             throw new \InvalidArgumentException('Invalid CLI script time limit');
         }
 
         $this->timeLimit = static::TIME_LIMIT;
+        $this->state = $initialState;
+
+        // Declared Depends On?
+        if ($this instanceof IpcDependentScriptInterface) {
+            $this->waitForIpcService(
+                $this->ipcDependsOn(),
+                $this->semaphoreLockId ?? ObjectHelper::baseClassName($this),
+                interval: 3,
+                maxAttempts: 100
+            );
+        }
     }
 
     /**
@@ -178,5 +197,20 @@ abstract class AbstractCliScript
     final protected function flags(): Flags
     {
         return $this->cli->flags;
+    }
+
+    /**
+     * @param int $seconds
+     * @return void
+     */
+    protected function safeSleep(int $seconds = 1): void
+    {
+        for ($i = 0; $i < $seconds; $i++) {
+            if (($i % 3) === 0) {
+                $this->cli->catchPcntlSignal();
+            }
+
+            sleep(1);
+        }
     }
 }
