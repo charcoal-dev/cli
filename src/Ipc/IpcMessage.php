@@ -11,7 +11,7 @@ namespace Charcoal\Cli\Ipc;
  * The purpose of this class is to provide a straightforward and reliable
  * structure for transporting data in IPC scenarios.
  */
-readonly class IpcMessage
+final readonly class IpcMessage
 {
     public function __construct(
         public string $message,
