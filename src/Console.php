@@ -27,7 +27,7 @@ use Charcoal\Events\Contracts\EventStoreOwnerInterface;
 class Console implements EventStoreOwnerInterface
 {
     protected readonly string $eventContextKey;
-    protected readonly ConsoleEvents $events;
+    public readonly ConsoleEvents $events;
     public readonly Arguments $args;
     public readonly Flags $flags;
 
