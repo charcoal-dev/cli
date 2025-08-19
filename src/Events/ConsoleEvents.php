@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Events;
 
 use Charcoal\Cli\Console;
-use Charcoal\Cli\Events\State\ExecutionStateChange;
+use Charcoal\Cli\Events\State\RuntimeStatusChange;
 use Charcoal\Cli\Events\Terminate\ExceptionCaught;
 use Charcoal\Cli\Events\Terminate\PcntlSignalClose;
 use Charcoal\Events\BehaviorEvent;
@@ -22,7 +22,7 @@ use Charcoal\Events\Support\Traits\EventStaticScopeTrait;
  * @package Charcoal\Cli\Events
  * @template T of ConsoleEvents
  * @template S of Console
- * @template E of ExecutionStateChange|ExceptionCaught|PcntlSignalClose
+ * @template E of RuntimeStatusChange|ExceptionCaught|PcntlSignalClose
  */
 class ConsoleEvents extends BehaviorEvent
 {
@@ -35,7 +35,7 @@ class ConsoleEvents extends BehaviorEvent
     {
         parent::__construct("consoleExecutionState", [
             ConsoleEventSignal::class,
-            ExecutionStateChange::class,
+            RuntimeStatusChange::class,
         ]);
 
         $this->registerStaticEventStore($this->cli);

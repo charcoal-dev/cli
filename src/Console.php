@@ -10,8 +10,8 @@ namespace Charcoal\Cli;
 
 use Charcoal\Base\Support\CaseStyle;
 use Charcoal\Cli\Events\ConsoleEvents;
-use Charcoal\Cli\Events\State\ExecutionState;
-use Charcoal\Cli\Events\State\ExecutionStateChange;
+use Charcoal\Cli\Events\State\RuntimeStatus;
+use Charcoal\Cli\Events\State\RuntimeStatusChange;
 use Charcoal\Cli\Events\Terminate\ExceptionCaught;
 use Charcoal\Cli\Events\Terminate\PcntlSignalClose;
 use Charcoal\Cli\Output\AbstractOutputHandler;
@@ -241,7 +241,7 @@ class Console implements EventStoreOwnerInterface
 
         try {
             // Preparing to execute script
-            ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Prepare));
+            ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Prepare));
 
             // Load script
             try {
@@ -276,8 +276,8 @@ class Console implements EventStoreOwnerInterface
                 $this->execClassname = $scriptClassname;
                 $this->execScriptObject = new $scriptClassname($this);
             } catch (\RuntimeException $e) {
-                ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(
-                    ExecutionState::ScriptNotFound,
+                ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(
+                    RuntimeStatus::ScriptNotFound,
                     $scriptClassname
                 ));
 
@@ -294,7 +294,7 @@ class Console implements EventStoreOwnerInterface
             }
 
             // Script is loaded trigger
-            ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Ready));
+            ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Ready));
 
             // Execute script
             try {
@@ -318,7 +318,7 @@ class Console implements EventStoreOwnerInterface
 
         // After script exec event
 
-        ConsoleEvents::getEvent($this)->dispatch(new ExecutionStateChange(ExecutionState::Completed,
+        ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Completed,
             isSuccess: $execSuccess));
 
         $this->print("");

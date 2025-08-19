@@ -12,7 +12,7 @@ namespace Charcoal\Cli\Events\State;
  * Class ExecutionState
  * @package Charcoal\Cli\Events\State
  */
-enum ExecutionState
+enum RuntimeStatus
 {
     case Prepare;
     case ScriptNotFound;
