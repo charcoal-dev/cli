@@ -36,6 +36,8 @@ class ConsoleEvents extends BehaviorEvent
         parent::__construct("consoleExecutionState", [
             ConsoleEventSignal::class,
             RuntimeStatusChange::class,
+            ExceptionCaught::class,
+            PcntlSignalClose::class,
         ]);
 
         $this->registerStaticEventStore($this->cli);
