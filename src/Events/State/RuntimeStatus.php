@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Events\State;
 
 /**
- * Class ExecutionState
+ * Class RuntimeStatus
  * @package Charcoal\Cli\Events\State
  */
 enum RuntimeStatus
