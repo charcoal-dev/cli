@@ -246,7 +246,7 @@ class Console implements EventStoreOwnerInterface
             // Load script
             try {
                 $scriptClassname = null;
-                if ($this->argClassname) {
+                if (isset($this->argClassname)) {
                     if (!class_exists($this->argClassname)) {
                         throw new \RuntimeException(sprintf('Script class for "%s" does not exist', $this->argScriptName));
                     }
