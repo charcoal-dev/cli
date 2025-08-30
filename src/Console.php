@@ -21,8 +21,8 @@ use Charcoal\Cli\Script\Flags;
 use Charcoal\Events\Contracts\EventStoreOwnerInterface;
 
 /**
- * Class Console
- * @package Charcoal\Cli
+ * Represents a console application with support for event management, argument parsing,
+ * signal handling, and script execution.
  */
 class Console implements EventStoreOwnerInterface
 {
