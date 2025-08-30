@@ -11,6 +11,7 @@ namespace Charcoal\Cli\Display;
 /**
  * Class AnsiEscapeSeq
  * @package Charcoal\Cli\Display
+ * @deprecated
  */
 class AnsiEscapeSeq
 {
