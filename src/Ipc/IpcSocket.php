@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Ipc;
 
-use Charcoal\Base\Traits\NoDumpTrait;
-use Charcoal\Base\Traits\NotCloneableTrait;
-use Charcoal\Base\Traits\NotSerializableTrait;
+use Charcoal\Base\Objects\Traits\NoDumpTrait;
+use Charcoal\Base\Objects\Traits\NotCloneableTrait;
+use Charcoal\Base\Objects\Traits\NotSerializableTrait;
 use Charcoal\Cli\Ipc\Exceptions\IpcSocketReadException;
 use Charcoal\Cli\Ipc\Exceptions\IpcSocketWriteException;
 

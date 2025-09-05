@@ -3,8 +3,12 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Ipc;
 
+use Charcoal\Base\Encoding\Encoding;
 use Charcoal\Buffers\Buffer;
-use Charcoal\Buffers\ByteReader;
+use Charcoal\Buffers\BufferImmutable;
+use Charcoal\Buffers\Enums\ByteOrder;
+use Charcoal\Buffers\Enums\UInt;
+use Charcoal\Buffers\Support\ByteReader;
 use Charcoal\Cli\Contracts\Ipc\IpcFrameEnumInterface;
 use Charcoal\Cli\Contracts\Ipc\IpcServiceEnumInterface;
 
@@ -35,29 +39,30 @@ class MessageFrame
     }
 
     /**
-     * @return Buffer
+     * @return BufferImmutable
      */
-    public function encode(): Buffer
+    public function encode(): BufferImmutable
     {
         $encoded = new Buffer(static::IDENTIFIER_BYTES);
         $encoded->append($this->getPaddedChunk($this->message, "sender"));
-        $encoded->appendUInt32LE($this->pid);
+        $encoded->append(ByteOrder::LittleEndian->pack32(UInt::Bytes4, $this->pid));
         if ($this->senderServiceEnum) {
-            $encoded->appendUInt8(1);
+            $encoded->append(ByteOrder::LittleEndian->pack32(UInt::Byte, 1));
             $encoded->append($this->getPaddedChunk($this->senderServiceEnum->value, "senderServiceEnum"));
         } else {
-            $encoded->appendUInt8(0);
+            $encoded->append(ByteOrder::LittleEndian->pack32(UInt::Byte, 0));
         }
 
-        $encoded->appendUInt16LE($this->frameCode->getCode());
 
-        $dataLen = $this->data?->len() ?? 0;
-        $encoded->appendUInt16LE($dataLen);
+        $encoded->append(ByteOrder::LittleEndian->pack32(UInt::Bytes2, $this->frameCode->getCode()));
+
+        $dataLen = $this->data?->length() ?? 0;
+        $encoded->append(ByteOrder::LittleEndian->pack32(UInt::Bytes2, $dataLen));
         if ($dataLen) {
             $encoded->append($this->data);
         }
 
-        return $encoded->readOnly();
+        return $encoded->toImmutable();
     }
 
     /**
@@ -81,7 +86,7 @@ class MessageFrame
     public static function isReadable(string $message): false|ByteReader
     {
         try {
-            $buffer = Buffer::fromBase16($message)->read();
+            $buffer = Buffer::decode(Encoding::Base64, $message)->read();
             if ($buffer->first(strlen(static::IDENTIFIER_BYTES)) === static::IDENTIFIER_BYTES) {
                 return $buffer;
             }

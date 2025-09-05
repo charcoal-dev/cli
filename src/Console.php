@@ -18,13 +18,15 @@ use Charcoal\Cli\Output\AbstractOutputHandler;
 use Charcoal\Cli\Script\AbstractCliScript;
 use Charcoal\Cli\Script\Arguments;
 use Charcoal\Cli\Script\Flags;
+use Charcoal\Contracts\Sapi\SapiType;
+use Charcoal\Contracts\Sapi\ServerApiInterface;
 use Charcoal\Events\Contracts\EventStoreOwnerInterface;
 
 /**
  * Represents a console application with support for event management, argument parsing,
  * signal handling, and script execution.
  */
-class Console implements EventStoreOwnerInterface
+class Console implements EventStoreOwnerInterface, ServerApiInterface
 {
     protected readonly string $eventContextKey;
     public readonly ConsoleEvents $events;
@@ -509,5 +511,13 @@ class Console implements EventStoreOwnerInterface
     public function eventsUniqueContextKey(): string
     {
         return $this->eventContextKey;
+    }
+
+    /**
+     * @return SapiType
+     */
+    public function type(): SapiType
+    {
+        return SapiType::Cli;
     }
 }

@@ -9,8 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Display;
 
 /**
- * Class Banners
- * @package Charcoal\Cli\Display
+ * Represents a class for creating and managing banners with specific styles.
  */
 readonly class Banners
 {

@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Enums;
 
-use Charcoal\Base\Traits\EnumMappingTrait;
+use Charcoal\Base\Enums\Traits\EnumMappingTrait;
 
 /**
  * Class ExecutionState
