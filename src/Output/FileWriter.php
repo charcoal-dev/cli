@@ -8,13 +8,13 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Output;
 
-use Charcoal\Base\Support\Helpers\ErrorHelper;
+use Charcoal\Base\Support\ErrorHelper;
 use Charcoal\Cli\Console;
 use Charcoal\Filesystem\Path\FilePath;
 
 /**
- * Class FileWriter
- * @package Charcoal\Cli\Output
+ * Handles writing operations to a file. Provides functionality to open files, write data,
+ * and manage the file's state while considering append mode and ANSI formatting.
  */
 class FileWriter extends AbstractOutputHandler
 {

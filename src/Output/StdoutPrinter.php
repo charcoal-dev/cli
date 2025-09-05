@@ -11,8 +11,9 @@ namespace Charcoal\Cli\Output;
 use Charcoal\Cli\Console;
 
 /**
- * Class StdoutPrinter
- * @package Charcoal\Cli\Output
+ * Handles standard output printing functionality.
+ * Extends the AbstractOutputHandler class to provide methods for
+ * managing and processing output data.
  */
 class StdoutPrinter extends AbstractOutputHandler
 {

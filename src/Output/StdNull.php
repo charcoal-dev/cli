@@ -11,8 +11,9 @@ namespace Charcoal\Cli\Output;
 use Charcoal\Cli\Console;
 
 /**
- * Class StdNull
- * @package Charcoal\Cli\Output
+ * Represents a handler that performs no output operations.
+ * This class is designed for cases where output buffering or
+ * handling is required to be active but not produce any output.
  */
 class StdNull extends AbstractOutputHandler
 {

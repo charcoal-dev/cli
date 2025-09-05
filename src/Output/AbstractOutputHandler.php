@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Output;
 
 use Charcoal\Cli\Console;
-use Charcoal\Cli\Display\AnsiEscapeSeq;
+use Charcoal\Console\Ansi\AnsiDecorator;
 
 /**
- * Class AbstractOutputHandler
- * @package Charcoal\Cli\Output
+ * Abstract class for handling output operations, allowing customization of output behavior
+ * such as enabling/disabling ANSI codes and setting end-of-line characters.
  */
 abstract class AbstractOutputHandler
 {
@@ -76,6 +76,6 @@ abstract class AbstractOutputHandler
     protected function getAnsiFilteredString(string $input, bool $addResetSuffix): string
     {
         return $this->useAnsiCodes ?
-            AnsiEscapeSeq::Parse($input, $addResetSuffix) : AnsiEscapeSeq::Clean($input);
+            AnsiDecorator::Parse($input, $addResetSuffix) : AnsiDecorator::clearTokens($input);
     }
 }

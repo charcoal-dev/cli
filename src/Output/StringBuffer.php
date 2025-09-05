@@ -11,8 +11,8 @@ namespace Charcoal\Cli\Output;
 use Charcoal\Cli\Console;
 
 /**
- * Class StringBuffer
- * @package Charcoal\Cli\Console
+ * Represents a buffer capable of storing output data and controlling its behavior for writing
+ * and retrieving content. Extends functionality provided by AbstractOutputHandler.
  */
 class StringBuffer extends AbstractOutputHandler
 {
