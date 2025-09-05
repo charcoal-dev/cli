@@ -8,14 +8,15 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Script;
 
-use Charcoal\Base\Support\Helpers\ObjectHelper;
+use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Cli\Console;
 use Charcoal\Cli\Contracts\Ipc\IpcDependentScriptInterface;
 use Charcoal\Cli\Enums\ExecutionState;
 
 /**
- * Class AbstractCliScript
- * @package Charcoal\Cli\Script
+ * Abstract base class for command-line interface (CLI) scripts, providing utility methods
+ * for interaction and execution in a CLI environment. Implements basic structure and common
+ * functionality required for CLI-based tasks.
  * @method void onSignalCloseCallback(int $sigId)
  */
 abstract class AbstractCliScript

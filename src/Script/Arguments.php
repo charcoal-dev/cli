@@ -9,8 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Script;
 
 /**
- * Class Arguments
- * @package Charcoal\Cli\Script
+ * A class for managing and manipulating name-value pair arguments.
  */
 class Arguments implements \IteratorAggregate
 {

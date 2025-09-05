@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Charcoal\Cli\Script;
 
 /**
- * Class Flags
- * @package Charcoal\Cli\Script
+ * This class provides constants for various flags, such as QUICK, FORCE, DEBUG, VERBOSE, and ANSI.
+ * These flags can be managed using methods to set, check, and remove specific flags.
  */
 class Flags
 {
