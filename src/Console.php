@@ -520,4 +520,12 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
     {
         return SapiType::Cli;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentUuid(): ?string
+    {
+        return $this->argScriptName;
+    }
 }
