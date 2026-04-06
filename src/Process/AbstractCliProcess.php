@@ -66,7 +66,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
         while (true) {
             try {
                 $interval = $this->onEachTick();
-                $this->cli->onEveryLoop();
+                $this->onEveryLoop();
                 $this->safeSleep(max($interval, 1));
             } catch (\Throwable $t) {
                 $this->handleProcessCrash($t);

@@ -35,7 +35,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
     protected readonly ?string $argScriptName;
     protected readonly ?string $argClassname;
-    protected readonly ?string $execClassname;
+    protected readonly string $execClassname;
     protected readonly AbstractCliScript $execScriptObject;
     public readonly float $execStartedOn;
 
@@ -238,7 +238,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
         }
 
         // Exec success signal
-        $this->execStartedOn = microtime(true);
+        $this->execStartedOn = hrtime(true);
         $execSuccess = false;
 
         try {
@@ -324,7 +324,11 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
             isSuccess: $execSuccess));
 
         $this->print("");
-        $this->print(sprintf("Execution time: {grey}%ss{/}", number_format(microtime(true) - $this->execStartedOn, 4)));
+        $this->print(sprintf(
+            "Execution time: {grey}%sms{/}",
+            number_format((hrtime(true) - $this->execStartedOn) / 1e6, 4)
+        ));
+
         $this->printMemoryConsumption();
 
         /** @var \Charcoal\Cli\Output\AbstractOutputHandler $output */

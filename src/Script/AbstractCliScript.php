@@ -15,7 +15,7 @@ use Charcoal\Cli\Enums\ExecutionState;
 
 /**
  * Abstract base class for command-line interface (CLI) scripts, providing utility methods
- * for interaction and execution in a CLI environment. Implements basic structure and common
+ * for interaction and execution in a CLI environment. Implements the basic structure and common
  * functionality required for CLI-based tasks.
  * @method void onSignalCloseCallback(int $sigId)
  */
@@ -34,10 +34,11 @@ abstract class AbstractCliScript
      */
     public function __construct(
         public readonly Console $cli,
-        ExecutionState          $initialState = ExecutionState::STARTED)
+        ExecutionState          $initialState = ExecutionState::STARTED
+    )
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
-            throw new \InvalidArgumentException('Invalid CLI script time limit');
+            throw new \InvalidArgumentException("Invalid CLI script time limit");
         }
 
         $this->timeLimit = static::TIME_LIMIT;
