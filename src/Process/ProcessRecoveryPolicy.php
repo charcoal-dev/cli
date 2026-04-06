@@ -12,7 +12,7 @@ namespace Charcoal\Cli\Process;
  * Represents a policy for process recovery, defining whether recovery is possible
  * and specifying timing parameters.
  */
-readonly class ProcessRecoveryPolicy
+final readonly class ProcessRecoveryPolicy
 {
     public function __construct(
         public bool $recoverable,

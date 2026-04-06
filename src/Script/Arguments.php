@@ -13,9 +13,8 @@ namespace Charcoal\Cli\Script;
  */
 class Arguments implements \IteratorAggregate
 {
-    /** @var array */
+    /** @var array<string, string|null> */
     private array $args = [];
-    /** @var int */
     private int $count = 0;
 
     /**
@@ -62,7 +61,7 @@ class Arguments implements \IteratorAggregate
     }
 
     /**
-     * @return array
+     * @return array<string, string|null>
      */
     public function getAll(): array
     {

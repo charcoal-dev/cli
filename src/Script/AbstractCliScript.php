@@ -10,6 +10,7 @@ namespace Charcoal\Cli\Script;
 
 use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Cli\Console;
+use Charcoal\Cli\Enums\ExecutionState;
 
 /**
  * Abstract base class for command-line interface (CLI) scripts, providing utility methods
@@ -25,6 +26,7 @@ abstract class AbstractCliScript
     public readonly string $whoAmI;
     public readonly int $startedOn;
     public readonly int $timeLimit;
+    protected(set) ExecutionState $state;
 
     public function __construct(public readonly Console $cli)
     {
@@ -32,6 +34,7 @@ abstract class AbstractCliScript
             throw new \InvalidArgumentException("Invalid CLI script time limit");
         }
 
+        $this->state = ExecutionState::STARTED;
         $this->timeLimit = static::TIME_LIMIT;
 
         // Declared Depends On?
@@ -64,6 +67,7 @@ abstract class AbstractCliScript
             $this->whoAmI = ObjectHelper::baseClassName($this);
         }
 
+        $this->state = ExecutionState::RUNNING;
         $this->exec();
     }
 

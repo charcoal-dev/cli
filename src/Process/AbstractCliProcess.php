@@ -11,7 +11,6 @@ namespace Charcoal\Cli\Process;
 use Charcoal\Cli\Console;
 use Charcoal\Cli\Contracts\CrashRecoverableProcessInterface;
 use Charcoal\Cli\Contracts\Ipc\IpcServerInterface;
-use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Process\Exceptions\UnrecoverableException;
 use Charcoal\Cli\Process\Traits\CrashRecoverableTrait;
 use Charcoal\Cli\Script\AbstractCliScript;
@@ -25,17 +24,9 @@ abstract class AbstractCliProcess extends AbstractCliScript
 
     final protected const int TIME_LIMIT = 0;
 
-    /**
-     * @param Console $cli
-     * @param ExecutionState $initialState
-     */
-    public function __construct(
-        Console        $cli,
-        ExecutionState $initialState = ExecutionState::STARTED,
-    )
+    public function __construct(Console $cli)
     {
-        parent::__construct($cli, $initialState);
-
+        parent::__construct($cli);
         if ($this instanceof CrashRecoverableProcessInterface) {
             $this->recoveryOnConstructHook();
         }
