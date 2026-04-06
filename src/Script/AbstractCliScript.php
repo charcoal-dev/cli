@@ -10,7 +10,6 @@ namespace Charcoal\Cli\Script;
 
 use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Cli\Console;
-use Charcoal\Cli\Enums\ExecutionState;
 
 /**
  * Abstract base class for command-line interface (CLI) scripts, providing utility methods
@@ -26,23 +25,14 @@ abstract class AbstractCliScript
     public readonly string $whoAmI;
     public readonly int $startedOn;
     public readonly int $timeLimit;
-    protected ExecutionState $state;
 
-    /**
-     * @param Console $cli
-     * @param ExecutionState $initialState
-     */
-    public function __construct(
-        public readonly Console $cli,
-        ExecutionState          $initialState = ExecutionState::STARTED
-    )
+    public function __construct(public readonly Console $cli)
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
             throw new \InvalidArgumentException("Invalid CLI script time limit");
         }
 
         $this->timeLimit = static::TIME_LIMIT;
-        $this->state = $initialState;
 
         // Declared Depends On?
         // if ($this instanceof IpcDependentScriptInterface) {
@@ -75,6 +65,14 @@ abstract class AbstractCliScript
         }
 
         $this->exec();
+    }
+
+    /**
+     * @return int
+     */
+    final public function sinceStartedOn(): int
+    {
+        return hrtime(true) - $this->startedOn;
     }
 
     /**

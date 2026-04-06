@@ -40,7 +40,11 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
     public readonly float $execStartedOn;
 
     protected array $outputBuffers = [];
-    private int $exitCode = 0;
+    private int $exitCode = 0 {
+        set {
+            $this->exitCode = $value;
+        }
+    }
 
     /**
      * @param string $scriptsNamespace
@@ -127,15 +131,6 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
             // For DIY implementations on SIGALRM:
             pcntl_signal(SIGALRM, [$this, "processControlSignalAlarm"]);
         }
-    }
-
-    /**
-     * @param int $exitCode
-     * @return void
-     */
-    public function setExitCode(int $exitCode): void
-    {
-        $this->exitCode = $exitCode;
     }
 
     /**
@@ -323,8 +318,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
             isSuccess: $execSuccess));
 
         $this->print("");
-        $this->print(sprintf(
-            "Execution time: {grey}%sms{/}",
+        $this->print(sprintf("Execution time: {grey}%sms{/}",
             number_format((hrtime(true) - $this->execStartedOn) / 1e6, 4)
         ));
 
