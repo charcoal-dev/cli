@@ -13,7 +13,7 @@ namespace Charcoal\Cli\Contracts\Ipc;
  * Implementing classes is required to provide a method for retrieving a unique integer code associated
  * with the enumeration value.
  */
-interface IpcFrameEnumInterface extends \UnitEnum
+interface IpcFrameEnumInterface extends \BackedEnum
 {
     public function getCode(): int;
 }

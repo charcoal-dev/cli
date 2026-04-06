@@ -11,14 +11,15 @@ namespace Charcoal\Cli\Contracts\Ipc;
 use Charcoal\Cli\Ipc\IpcSocket;
 
 /**
- * Interface IpcServerInterface
- * @package Charcoal\Cli\Contracts\Ipc
+ * Interface for defining the structure and behavior of an IPC (Inter-Process Communication) server.
  */
 interface IpcServerInterface
 {
-    public function ipcServerOnConstructHook(): void;
+    public function ipcOnConstructHook(): void;
 
     public function ipcSocket(): IpcSocket;
 
-    public function ipcServiceEnum(): IpcServiceEnumInterface;
+    public function ipcEnum(): IpcServiceEnumInterface;
+
+    public function ipcFrameCodeFrom(int $frameCode): IpcFrameEnumInterface;
 }

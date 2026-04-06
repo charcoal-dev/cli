@@ -10,30 +10,26 @@ use Charcoal\Buffers\Enums\ByteOrder;
 use Charcoal\Buffers\Enums\UInt;
 use Charcoal\Buffers\Support\ByteReader;
 use Charcoal\Cli\Contracts\Ipc\IpcFrameEnumInterface;
+use Charcoal\Cli\Contracts\Ipc\IpcServerInterface;
 use Charcoal\Cli\Contracts\Ipc\IpcServiceEnumInterface;
+use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 
 /**
- * Class AppIpcFrame
- * @package App\Shared\Core\Ipc
+ * Represents a message frame used for inter-process communication (IPC).
+ * Provides functionality to encode and decode message frames, including
+ * validation of data length and formatting.
  */
 class MessageFrame
 {
     public const string IDENTIFIER_BYTES = "\xc\x7\x8\x6";
     public const int CHUNK_SIZE = 32;
 
-    /**
-     * @param string $message
-     * @param int $pid
-     * @param IpcServiceEnumInterface|null $senderServiceEnum
-     * @param IpcFrameEnumInterface $frameCode
-     * @param Buffer|null $data
-     */
     public function __construct(
         public readonly string                   $message,
         public readonly int                      $pid,
         public readonly ?IpcServiceEnumInterface $senderServiceEnum,
         public readonly IpcFrameEnumInterface    $frameCode,
-        public readonly ?Buffer                  $data,
+        public readonly ?ReadableBufferInterface $data,
     )
     {
     }
@@ -97,12 +93,14 @@ class MessageFrame
     }
 
     /**
+     * @param IpcServerInterface $server
      * @param string $message
      * @return static
-     * @todo Finish Implementation
-     * @noinspection PhpUnusedLocalVariableInspection
      */
-    public static function decode(string $message): static
+    public static function decode(
+        IpcServerInterface $server,
+        string             $message
+    ): static
     {
         $read = static::isReadable($message);
         if (!$read) {
@@ -111,12 +109,12 @@ class MessageFrame
 
         $sender = ltrim($read->next(static::CHUNK_SIZE));
         $pid = $read->readUInt32LE();
-        $senderServiceEnum = null;
+        $senderEnum = null;
         if ($read->readUInt8() === 1) {
-            $senderServiceEnum = IpcServiceEnumInterface::from(ltrim($read->next(static::CHUNK_SIZE)));
+            $senderEnum = $server->ipcEnum()::from(ltrim($read->next(static::CHUNK_SIZE)));
         }
 
-        //$frameCode = IpcFrameEnumInterface::fromFrameCode($read->readUInt16LE());
+        $frameCode = $server->ipcFrameCodeFrom($read->readUInt16LE());
         $data = null;
         $dataLen = $read->readUInt16LE();
         if ($dataLen > 0) {
@@ -127,8 +125,6 @@ class MessageFrame
             throw new \DomainException("Message contains additional bytes");
         }
 
-        //return new static($sender, $pid, $senderServiceEnum, $frameCode, $data);
-
-        throw new \LogicException("Not implemented");
+        return new static($sender, $pid, $senderEnum, $frameCode, $data);
     }
 }

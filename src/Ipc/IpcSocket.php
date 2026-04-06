@@ -10,8 +10,8 @@ use Charcoal\Cli\Ipc\Exceptions\IpcSocketReadException;
 use Charcoal\Cli\Ipc\Exceptions\IpcSocketWriteException;
 
 /**
- * Class IpcSocket
- * @package App\Shared\Core\Ipc
+ * Represents an Inter-Process Communication (IPC) socket used for sending and receiving
+ * datagram-based messages over a UNIX domain socket.
  */
 class IpcSocket
 {
