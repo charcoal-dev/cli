@@ -15,7 +15,7 @@ use Charcoal\Cli\Script\AbstractCliScript;
  * Class ExecutionStateChange
  * @package Charcoal\Cli\Events\State
  */
-readonly class RuntimeStatusChange implements ConsoleEventSignal
+final readonly class RuntimeStatusChange implements ConsoleEventSignal
 {
     /**
      * @param RuntimeStatus $state

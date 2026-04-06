@@ -69,6 +69,7 @@ abstract class AbstractCliScript
      */
     final public function burn(): void
     {
+        $this->startedOn = hrtime(true);
         $this->exec();
     }
 

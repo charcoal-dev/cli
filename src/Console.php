@@ -300,7 +300,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
             // Execute script
             try {
-                $this->execScriptObject->exec();
+                $this->execScriptObject->burn();
                 $execSuccess = true;
             } catch (\Throwable $t) {
                 ConsoleEvents::getEvent($this)->dispatch(new ExceptionCaught($t));
@@ -319,7 +319,6 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
         }
 
         // After script exec event
-
         ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Completed,
             isSuccess: $execSuccess));
 

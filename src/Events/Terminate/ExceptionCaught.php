@@ -14,7 +14,7 @@ use Charcoal\Cli\Events\ConsoleEventSignal;
  * Class ExceptionCaught
  * @package Charcoal\Cli\Events\Terminate
  */
-readonly class ExceptionCaught implements ConsoleEventSignal
+final readonly class ExceptionCaught implements ConsoleEventSignal
 {
     public function __construct(
         public \Throwable $exception

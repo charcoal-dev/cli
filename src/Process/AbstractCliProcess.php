@@ -35,13 +35,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
     )
     {
         parent::__construct($cli, $initialState);
-    }
 
-    /**
-     * @return void
-     */
-    protected function onConstructHook(): void
-    {
         if ($this instanceof CrashRecoverableProcessInterface) {
             $this->recoveryOnConstructHook();
         }
@@ -52,13 +46,12 @@ abstract class AbstractCliProcess extends AbstractCliScript
     }
 
     /**
-     * Execution logic for every tick, return number of seconds to sleep until next interval
+     * Execution logic for every tick, return number of seconds to sleep until the next interval
      * @return int
      */
     abstract protected function onEachTick(): int;
 
     /**
-     * @return void
      * @throws \Throwable
      */
     final function execScript(): void
@@ -75,8 +68,6 @@ abstract class AbstractCliProcess extends AbstractCliScript
     }
 
     /**
-     * @param \Throwable $t
-     * @return void
      * @throws UnrecoverableException
      * @throws \Throwable
      */

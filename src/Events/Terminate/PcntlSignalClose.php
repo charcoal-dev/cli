@@ -14,7 +14,7 @@ use Charcoal\Cli\Events\ConsoleEventSignal;
  * Class PcntlSignalClose
  * @package Charcoal\Cli\Events\Terminate
  */
-readonly class PcntlSignalClose implements ConsoleEventSignal
+final readonly class PcntlSignalClose implements ConsoleEventSignal
 {
     public function __construct(public int $sigId)
     {
