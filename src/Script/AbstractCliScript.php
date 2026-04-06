@@ -36,16 +36,6 @@ abstract class AbstractCliScript
 
         $this->state = ExecutionState::STARTED;
         $this->timeLimit = static::TIME_LIMIT;
-
-        // Declared Depends On?
-        // if ($this instanceof IpcDependentScriptInterface) {
-        // $this->waitForIpcService(
-        //  $this->ipcDependsOn(),
-        //  $this->semaphoreLockId ?? ObjectHelper::baseClassName($this),
-        //  interval: 3,
-        //  maxAttempts: 100
-        // );
-        // }
     }
 
     /**
@@ -67,8 +57,15 @@ abstract class AbstractCliScript
             $this->whoAmI = ObjectHelper::baseClassName($this);
         }
 
-        $this->state = ExecutionState::RUNNING;
-        $this->exec();
+        try {
+            $this->state = ExecutionState::RUNNING;
+            $this->exec();
+        } catch (\Throwable $t) {
+            $this->state = ExecutionState::ERROR;
+            throw $t;
+        }
+
+        $this->state = ExecutionState::FINISHED;
     }
 
     /**

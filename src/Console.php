@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Charcoal\Cli;
 
 use Charcoal\Base\Strings\CaseStyle;
+use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Events\ConsoleEvents;
 use Charcoal\Cli\Events\State\RuntimeStatus;
 use Charcoal\Cli\Events\State\RuntimeStatusChange;

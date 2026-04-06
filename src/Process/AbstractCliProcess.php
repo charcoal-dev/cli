@@ -11,6 +11,7 @@ namespace Charcoal\Cli\Process;
 use Charcoal\Cli\Console;
 use Charcoal\Cli\Contracts\CrashRecoverableProcessInterface;
 use Charcoal\Cli\Contracts\Ipc\IpcServerInterface;
+use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Process\Exceptions\UnrecoverableException;
 use Charcoal\Cli\Process\Traits\CrashRecoverableTrait;
 use Charcoal\Cli\Script\AbstractCliScript;
@@ -32,7 +33,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
         }
 
         if ($this instanceof IpcServerInterface) {
-            $this->ipcServerOnConstructHook();
+            $this->ipcOnConstructHook();
         }
     }
 
@@ -45,7 +46,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
     /**
      * @throws \Throwable
      */
-    final function execScript(): void
+    final function exec(): void
     {
         while (true) {
             try {
@@ -67,6 +68,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
         $this->print("")->print("{red}{b}Process has crashed!")
             ->print(sprintf("{red}[{yellow}%s{/}{red}]: %s{/}", get_class($t), $t->getMessage()));
 
+        $this->state = ExecutionState::ERROR;
         // Todo: Update process state to CRASHED
         // Todo: Raise an alert
 
