@@ -10,7 +10,6 @@ namespace Charcoal\Cli\Script;
 
 use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Cli\Console;
-use Charcoal\Cli\Contracts\Ipc\IpcDependentScriptInterface;
 use Charcoal\Cli\Enums\ExecutionState;
 
 /**
@@ -24,6 +23,7 @@ abstract class AbstractCliScript
     /** @var int Set an execution time limit or 0 for infinite */
     protected const int TIME_LIMIT = 30;
 
+    public readonly string $whoAmI;
     public readonly int $startedOn;
     public readonly int $timeLimit;
     protected ExecutionState $state;
@@ -45,14 +45,14 @@ abstract class AbstractCliScript
         $this->state = $initialState;
 
         // Declared Depends On?
-        if ($this instanceof IpcDependentScriptInterface) {
-            $this->waitForIpcService(
-                $this->ipcDependsOn(),
-                $this->semaphoreLockId ?? ObjectHelper::baseClassName($this),
-                interval: 3,
-                maxAttempts: 100
-            );
-        }
+        // if ($this instanceof IpcDependentScriptInterface) {
+        // $this->waitForIpcService(
+        //  $this->ipcDependsOn(),
+        //  $this->semaphoreLockId ?? ObjectHelper::baseClassName($this),
+        //  interval: 3,
+        //  maxAttempts: 100
+        // );
+        // }
     }
 
     /**
@@ -65,11 +65,15 @@ abstract class AbstractCliScript
 
     /**
      * Alias of exec method
-     * @return void
+     * @internal
      */
     final public function burn(): void
     {
         $this->startedOn = hrtime(true);
+        if (!isset($this->whoAmI)) {
+            $this->whoAmI = ObjectHelper::baseClassName($this);
+        }
+
         $this->exec();
     }
 
