@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Process\Traits;
 
+use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Process\ProcessRecoveryPolicy;
 
 /**
@@ -66,12 +67,11 @@ trait CrashRecoverableTrait
         $this->print("");
     }
 
-    /** @noinspection PhpUnusedLocalVariableInspection */
     final protected function handleRecoveryAfterCrash(): void
     {
         $this->print("");
         $this->inline(sprintf("{grey}Recovery in {b}%d{/} ticks ", $this->recovery->ticks));
-        $recoveryEta = round(($this->recovery->ticks * $this->recovery->ticksInterval) / $this->recovery->ticksInterval, 1);
+        //$recoveryEta = round(($this->recovery->ticks * $this->recovery->ticksInterval) / $this->recovery->ticksInterval, 1);
 //        if ($this->logger) {
 //            $this->logger->context->log(sprintf("Recovery expected in %s seconds", $recoveryEta));
 //            $this->logger->changeState(CliScriptState::HEALING);
@@ -79,7 +79,7 @@ trait CrashRecoverableTrait
 //        }
 
         $this->beforeHealingStart();
-
+        $this->state = ExecutionState::HEALING;
         for ($i = 0; $i < $this->recovery->ticks; $i++) {
             if (($i % 3) === 0) { // On every 3rd tick
                 $this->cli->catchPcntlSignal();
@@ -91,5 +91,6 @@ trait CrashRecoverableTrait
 
         $this->print("")->print("");
         $this->onHealingFinished();
+        $this->state = ExecutionState::RUNNING;
     }
 }
