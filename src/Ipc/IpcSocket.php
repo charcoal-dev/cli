@@ -43,6 +43,11 @@ class IpcSocket
      */
     public function send(IpcSocketConfig $recipient, string $message): void
     {
+        $sender = $this->socket ?? $this->createClientSocket();
+        if ($recipient->encoding) {
+            $message = $recipient->encoding->encode($message);
+        }
+
         $messageLen = strlen($message);
         if ($messageLen > $recipient->dataGramSize) {
             throw new \OverflowException(
@@ -50,9 +55,12 @@ class IpcSocket
             );
         }
 
-        $sender = $this->socket ?? $this->createClientSocket();
         if (!@socket_sendto($sender, $message, $messageLen, 0, $recipient->socketFile)) {
             $error = socket_last_error($sender);
+            if ($error === SOCKET_EAGAIN || $error === SOCKET_EWOULDBLOCK) {
+                throw new IpcSocketWriteException("Socket buffer full (EAGAIN/EWOULDBLOCK)", $error);
+            }
+
             throw new IpcSocketWriteException(socket_strerror($error), $error);
         }
 
@@ -62,19 +70,22 @@ class IpcSocket
     }
 
     /**
+     * @param int $maxMessages
+     * @return IpcMessage[]
      * @throws IpcSocketReadException
      */
-    public function receive(): array
+    public function receive(int $maxMessages = 100): array
     {
         if (!$this->socket || !$this->config) {
             throw new \LogicException("Cannot receive messages on IpcSocket without IpcSocketBinding");
         }
 
         $queue = [];
-        while (true) {
+        $readCount = 0;
+        while ($readCount < $maxMessages) {
             $msgSender = "";
             $msgBuffer = "";
-            $read = socket_recvfrom($this->socket, $msgBuffer, $this->config->dataGramSize, 0, $msgSender);
+            $read = @socket_recvfrom($this->socket, $msgBuffer, $this->config->dataGramSize, 0, $msgSender);
             if ($read === false) {
                 $ipcSocketError = socket_last_error($this->socket);
                 if ($ipcSocketError === SOCKET_EAGAIN || $ipcSocketError === SOCKET_EWOULDBLOCK) {
@@ -84,16 +95,22 @@ class IpcSocket
                 throw new IpcSocketReadException(socket_strerror($ipcSocketError), $ipcSocketError);
             }
 
+            if ($this->config->encoding) {
+                $msgBuffer = $this->config->encoding->decode($msgBuffer);
+            }
+
             $queue[] = new IpcMessage($msgBuffer, $msgSender);
+            $readCount++;
         }
 
         return $queue;
     }
 
     /**
+     * @param bool|null $blocking
      * @return \Socket
      */
-    public function createClientSocket(): \Socket
+    public function createClientSocket(?bool $blocking = null): \Socket
     {
         $socket = socket_create(AF_UNIX, SOCK_DGRAM, 0);
         if ($socket === false) {
@@ -101,9 +118,17 @@ class IpcSocket
                 socket_strerror(socket_last_error()));
         }
 
-        if (!socket_set_nonblock($socket)) {
-            throw new \RuntimeException("Failed to set IPC client socket in NON-BLOCK mode. " .
-                socket_strerror(socket_last_error($socket)));
+        $blocking ??= $this->config?->blocking ?? false;
+        if (!$blocking) {
+            if (!socket_set_nonblock($socket)) {
+                throw new \RuntimeException("Failed to set IPC socket in NON-BLOCK mode. " .
+                    socket_strerror(socket_last_error($socket)));
+            }
+        } else {
+            if (!socket_set_block($socket)) {
+                throw new \RuntimeException("Failed to set IPC socket in BLOCK mode. " .
+                    socket_strerror(socket_last_error($socket)));
+            }
         }
 
         return $socket;

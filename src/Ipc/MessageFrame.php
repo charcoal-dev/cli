@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Ipc;
 
-use Charcoal\Base\Encoding\Encoding;
 use Charcoal\Buffers\Buffer;
 use Charcoal\Buffers\BufferImmutable;
 use Charcoal\Buffers\Enums\ByteOrder;
@@ -81,12 +80,8 @@ class MessageFrame
      */
     public static function isReadable(string $message): false|ByteReader
     {
-        try {
-            $buffer = Buffer::decode(Encoding::Base64, $message)->read();
-            if ($buffer->first(strlen(static::IDENTIFIER_BYTES)) === static::IDENTIFIER_BYTES) {
-                return $buffer;
-            }
-        } catch (\Exception) {
+        if (str_starts_with($message, static::IDENTIFIER_BYTES)) {
+            return new ByteReader($message);
         }
 
         return false;

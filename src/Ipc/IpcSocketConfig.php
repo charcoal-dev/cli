@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Ipc;
 
+use Charcoal\Contracts\Encoding\EncodingSchemeInterface;
+
 /**
  * A configuration class for IPC socket settings. This class is immutable.
  * The configuration includes the path to the socket file and the size of datagrams.
@@ -11,8 +13,10 @@ namespace Charcoal\Cli\Ipc;
 final readonly class IpcSocketConfig
 {
     public function __construct(
-        public string $socketFile,
-        public int    $dataGramSize = 1024
+        public string                   $socketFile,
+        public int                      $dataGramSize = 1024,
+        public bool                     $blocking = false,
+        public ?EncodingSchemeInterface $encoding = null
     )
     {
     }

@@ -22,6 +22,8 @@ use Charcoal\Contracts\Buffers\ReadableBufferInterface;
  */
 trait IpcClientTrait
 {
+    private ?IpcSocket $ipcClientSocket = null;
+
     /**
      * @throws \Charcoal\Cli\Ipc\Exceptions\IpcSocketWriteException
      */
@@ -30,11 +32,17 @@ trait IpcClientTrait
         MessageFrame                            $message
     ): void
     {
-        if($recipient instanceof IpcServiceEnumInterface) {
+        if ($recipient instanceof IpcServiceEnumInterface) {
             $recipient = $recipient->getConfig();
         }
 
-        $socket = $this instanceof IpcServerInterface ? $this->ipcSocket() : new IpcSocket(null);
+        if ($this instanceof IpcServerInterface) {
+            $socket = $this->ipcSocket();
+        } else {
+            $this->ipcClientSocket ??= new IpcSocket(null);
+            $socket = $this->ipcClientSocket;
+        }
+
         $socket->send($recipient, $message->encode()->bytes());
     }
 
