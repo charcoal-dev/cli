@@ -31,4 +31,6 @@ interface SupervisorInterface
     public function spawnChildProcess(callable $logic, array $args): int;
 
     public function terminateChildren(int $sigId): void;
+
+    public function waitChildren(bool $blocking = false): void;
 }
