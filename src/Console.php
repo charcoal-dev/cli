@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace Charcoal\Cli;
 
 use Charcoal\Base\Strings\CaseStyle;
-use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Events\ConsoleEvents;
 use Charcoal\Cli\Events\State\RuntimeStatus;
 use Charcoal\Cli\Events\State\RuntimeStatusChange;
@@ -41,11 +40,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
     public readonly float $execStartedOn;
 
     protected array $outputBuffers = [];
-    private int $exitCode = 0 {
-        set {
-            $this->exitCode = $value;
-        }
-    }
+    private int $exitCode = 1;
 
     /**
      * @param string $scriptsNamespace
@@ -302,6 +297,9 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
                 ConsoleEvents::getEvent($this)->dispatch(new ExceptionCaught($t));
                 throw $t;
             }
+
+            // Set the Exit Code to ZERO
+            $this->exitCode = 0;
         } catch (\Throwable $t) {
             $this->exception2Str($t);
         }

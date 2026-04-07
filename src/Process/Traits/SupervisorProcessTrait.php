@@ -1,0 +1,133 @@
+<?php
+/**
+ * Part of the "charcoal-dev/cli" package.
+ * @link https://github.com/charcoal-dev/cli
+ */
+
+declare(strict_types=1);
+
+namespace Charcoal\Cli\Process\Traits;
+
+use Charcoal\Cli\Process\AbstractCliProcess;
+use Charcoal\Cli\Process\Supervisor\SupervisorConfig;
+use Charcoal\Cli\Process\Exceptions\ChildProcessCompletedException;
+use Charcoal\Cli\Process\Exceptions\ChildSpawnException;
+use Charcoal\Cli\Process\Exceptions\UnrecoverableException;
+
+/**
+ * @mixin AbstractCliProcess
+ */
+trait SupervisorProcessTrait
+{
+    protected SupervisorConfig $supervisorConfig;
+    protected ?array $supervisorChildren = [];
+
+    abstract protected function declareSupervisorConfig(): SupervisorConfig;
+
+    /**
+     * @return void
+     */
+    public function supervisorOnConstructHook(): void
+    {
+        $this->supervisorConfig = $this->declareSupervisorConfig();
+    }
+
+    /**
+     * @throws ChildProcessCompletedException
+     * @throws ChildSpawnException
+     * @throws UnrecoverableException
+     */
+    public function spawnChildProcess(callable $logic, array $args): int
+    {
+        if (!extension_loaded("pcntl")) {
+            throw new \RuntimeException("Charcoal supervisor process requires PCNTL extension");
+        }
+
+        if (count($this->supervisorChildren ?? []) >= ($this->supervisorConfig->maxChildren ?? 10)) {
+            throw new ChildSpawnException(sprintf("Maximum number of child-processes reached (%d)",
+                $this->supervisorConfig->maxChildren));
+        }
+
+        $childPid = pcntl_fork();
+        if ($childPid === -1) {
+            throw new ChildSpawnException("Failed to spawn a child-process");
+        }
+
+        if ($childPid > 0) {
+            // Master Process
+            $this->supervisorChildren[$childPid] = true;
+            return $childPid;
+        }
+
+        // Child Process
+        $this->supervisorChildren = null;
+
+        // Reset Signal Handlers
+        pcntl_signal(SIGTERM, SIG_DFL);
+        pcntl_signal(SIGINT, SIG_DFL);
+        pcntl_signal(SIGHUP, SIG_DFL);
+        pcntl_signal(SIGQUIT, SIG_DFL);
+        pcntl_signal(SIGALRM, SIG_DFL);
+
+        // Execute Logic
+        try {
+            $result = $logic(...$args);
+            throw new ChildProcessCompletedException($result);
+        } catch (ChildProcessCompletedException $e) {
+            throw $e;
+        } catch (\Throwable $t) {
+            throw new UnrecoverableException(
+                sprintf("Child-process %d failed with %s: %s", getmypid(), $t::class, $t->getMessage()),
+                previous: $t
+            );
+        }
+    }
+
+    /**
+     * @param bool $blocking
+     * @return void
+     */
+    public function waitChildren(bool $blocking = false): void
+    {
+        if (!extension_loaded("pcntl")) {
+            return;
+        }
+
+        if ($this->supervisorChildren === null) {
+            return;
+        }
+
+        foreach (array_keys($this->supervisorChildren) as $childPid) {
+            $res = pcntl_waitpid($childPid, $status, $blocking ? 0 : WNOHANG);
+            if ($res > 0 || $res === -1) {
+                unset($this->supervisorChildren[$childPid]);
+            }
+        }
+    }
+
+    /**
+     * @param int $sigId
+     * @return void
+     */
+    public function terminateChildren(int $sigId): void
+    {
+        if (!extension_loaded("posix")) {
+            throw new \RuntimeException("Charcoal supervisor process requires POSIX extension");
+        }
+
+        if ($this->supervisorChildren !== null) {
+            foreach (array_keys($this->supervisorChildren) as $workerPid) {
+                posix_kill($workerPid, $sigId);
+            }
+
+            // Wait for children to terminate
+            $this->waitChildren(true);
+        }
+
+        if ($this->supervisorChildren === null) {
+            $this->print(sprintf("{cyan}Child Process{/} with PID {blue}%d{/} terminated by signal: {red}%d{/}",
+                getmypid(), $sigId));
+            exit(0);
+        }
+    }
+}
