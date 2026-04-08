@@ -13,6 +13,6 @@ namespace Charcoal\Cli\Ipc\Exceptions;
  * This exception is typically thrown when a read operation fails, encounters an unexpected condition,
  * or cannot proceed as expected in IPC socket communication.
  */
-class IpcSocketReadException extends \Exception
+final class IpcSocketReadException extends \Exception
 {
 }

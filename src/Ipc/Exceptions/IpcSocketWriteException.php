@@ -12,6 +12,6 @@ namespace Charcoal\Cli\Ipc\Exceptions;
  * Represents an exception that occurs during an IPC (Inter-Process Communication) socket write operation.
  * This exception is thrown when a failure happens while attempting to write data to a socket.
  */
-class IpcSocketWriteException extends \Exception
+final class IpcSocketWriteException extends \Exception
 {
 }

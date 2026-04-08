@@ -13,7 +13,7 @@ use Charcoal\Cli\Ipc\Exceptions\IpcSocketWriteException;
  * Represents an Inter-Process Communication (IPC) socket used for sending and receiving
  * datagram-based messages over a UNIX domain socket.
  */
-class IpcSocket
+final class IpcSocket
 {
     use NotCloneableTrait;
     use NotSerializableTrait;

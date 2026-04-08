@@ -17,7 +17,7 @@ use Charcoal\Base\Enums\Traits\EnumMappingTrait;
 enum ExecutionState: string
 {
     case Initializing = "init";
-    case ScriptNotFound = "script_404";
+    case Failed = "failed";
     case Ready = "ready";
     case Running = "running";
     case Paused = "paused";

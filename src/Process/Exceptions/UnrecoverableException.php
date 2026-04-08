@@ -12,6 +12,6 @@ namespace Charcoal\Cli\Process\Exceptions;
  * Represents an exception that cannot be recovered from and
  * indicates a critical error in the application.
  */
-class UnrecoverableException extends \Exception
+final class UnrecoverableException extends \Exception
 {
 }

@@ -17,6 +17,7 @@ use Charcoal\Cli\Events\Terminate\PcntlSignalClose;
 use Charcoal\Cli\Output\AbstractOutputHandler;
 use Charcoal\Cli\Script\AbstractCliScript;
 use Charcoal\Cli\Script\Arguments;
+use Charcoal\Cli\Script\Exceptions\ScriptNotFoundException;
 use Charcoal\Cli\Script\Flags;
 use Charcoal\Contracts\Sapi\SapiType;
 use Charcoal\Contracts\Sapi\ServerApiInterface;
@@ -237,44 +238,42 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
             ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(ExecutionState::Initializing));
 
             // Load script
+            $scriptClassname = null;
+            if (isset($this->argClassname)) {
+                if (!class_exists($this->argClassname)) {
+                    throw new \RuntimeException(sprintf('Script class for "%s" does not exist', $this->argScriptName));
+                }
+
+                $scriptClassname = $this->argClassname;
+            }
+
+            if (!$scriptClassname && $this->defaultScriptName) {
+                $defaultScriptClassname = $this->scriptNameToClassname($this->defaultScriptName);
+                if (!class_exists($defaultScriptClassname)) {
+                    throw new \RuntimeException(sprintf('Default script class "%s" does not exist', $this->defaultScriptName));
+                }
+
+                $scriptClassname = $defaultScriptClassname;
+            }
+
             try {
-                $scriptClassname = null;
-                if (isset($this->argClassname)) {
-                    if (!class_exists($this->argClassname)) {
-                        throw new \RuntimeException(sprintf('Script class for "%s" does not exist', $this->argScriptName));
-                    }
-
-                    $scriptClassname = $this->argClassname;
-                }
-
-                if (!$scriptClassname && $this->defaultScriptName) {
-                    $defaultScriptClassname = $this->scriptNameToClassname($this->defaultScriptName);
-                    if (!class_exists($defaultScriptClassname)) {
-                        throw new \RuntimeException(sprintf('Default script class "%s" does not exist', $this->defaultScriptName));
-                    }
-
-                    $scriptClassname = $defaultScriptClassname;
-                }
-
                 if (!$scriptClassname) {
-                    throw new \RuntimeException("No script specified to execute!");
-                }
-
-                if (!is_a($scriptClassname, AbstractCliScript::class, true)) {
-                    throw new \RuntimeException(
-                        sprintf('Script class for "%s" must extend "%s" class', $scriptClassname, AbstractCliScript::class)
+                    throw new ScriptNotFoundException("No script specified to execute!");
+                } elseif (!is_a($scriptClassname, AbstractCliScript::class, true)) {
+                    throw new ScriptNotFoundException(
+                        sprintf('Script class "%s" must extend "%s" class', $scriptClassname, AbstractCliScript::class)
                     );
                 }
 
                 $this->execClassname = $scriptClassname;
                 $this->execScriptObject = new $scriptClassname($this);
-            } catch (\RuntimeException $e) {
+            } catch (\Throwable $t) {
                 ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(
-                    ExecutionState::ScriptNotFound,
-                    $scriptClassname
+                    ExecutionState::Failed,
+                    exception: $t
                 ));
 
-                throw $e;
+                throw $t;
             }
 
             // Set time limit

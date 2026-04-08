@@ -11,6 +11,6 @@ namespace Charcoal\Cli\Process\Exceptions;
 /**
  * Exception thrown when there is a failure in the spawning of a child process.
  */
-class ChildSpawnException extends \Exception
+final class ChildSpawnException extends \Exception
 {
 }
