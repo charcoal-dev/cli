@@ -238,36 +238,36 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
             ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(ExecutionState::Initializing));
 
             // Load script
-            $scriptClassname = null;
-            if (isset($this->argClassname)) {
-                if (!class_exists($this->argClassname)) {
-                    throw new \RuntimeException(sprintf('Script class for "%s" does not exist', $this->argScriptName));
-                }
-
-                $scriptClassname = $this->argClassname;
-            }
-
-            if (!$scriptClassname && $this->defaultScriptName) {
-                $defaultScriptClassname = $this->scriptNameToClassname($this->defaultScriptName);
-                if (!class_exists($defaultScriptClassname)) {
-                    throw new \RuntimeException(sprintf('Default script class "%s" does not exist', $this->defaultScriptName));
-                }
-
-                $scriptClassname = $defaultScriptClassname;
-            }
-
             try {
-                if (!$scriptClassname) {
-                    throw new ScriptNotFoundException($scriptClassname, "No script specified to execute!");
-                } elseif (!is_a($scriptClassname, AbstractCliScript::class, true)) {
+                $scriptFqcn = null;
+                if (isset($this->argClassname)) {
+                    if (!class_exists($this->argClassname)) {
+                        throw new ScriptNotFoundException($this->argClassname, "Script class does not exist");
+                    }
+
+                    $scriptFqcn = $this->argClassname;
+                }
+
+                if (!$scriptFqcn && $this->defaultScriptName) {
+                    $defaultScriptFqcn = $this->scriptNameToClassname($this->defaultScriptName);
+                    if (!class_exists($defaultScriptFqcn)) {
+                        throw new ScriptNotFoundException($defaultScriptFqcn, "Default script class does not exist");
+                    }
+
+                    $scriptFqcn = $defaultScriptFqcn;
+                }
+
+                if (!$scriptFqcn) {
+                    throw new ScriptNotFoundException($scriptFqcn, "No script specified to execute!");
+                } elseif (!is_a($scriptFqcn, AbstractCliScript::class, true)) {
                     throw new ScriptNotFoundException(
-                        $scriptClassname,
-                        sprintf('Script class "%s" must extend "AbstractCliScript"', $scriptClassname)
+                        $scriptFqcn,
+                        sprintf('Script class "%s" must extend "AbstractCliScript"', $scriptFqcn)
                     );
                 }
 
-                $this->execClassname = $scriptClassname;
-                $this->execScriptObject = new $scriptClassname($this);
+                $this->execClassname = $scriptFqcn;
+                $this->execScriptObject = new $scriptFqcn($this);
             } catch (\Throwable $t) {
                 ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(
                     ExecutionState::Failed,
