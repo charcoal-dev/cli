@@ -15,7 +15,7 @@ namespace Charcoal\Cli\Process\Supervisor;
 final readonly class SupervisorConfig
 {
     public function __construct(
-        public int $maxChildren = 10
+        public int $maxChildren = 0
     )
     {
     }

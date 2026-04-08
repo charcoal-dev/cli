@@ -31,6 +31,14 @@ trait SupervisorProcessTrait
     abstract protected function prepareChildProcess(): void;
 
     /**
+     * This method is called internally when a child process exits.
+     * Can be used to spawn a new child process to maintain count.
+     */
+    protected function childProcessExitedHook(int $pid, int $status): void
+    {
+    }
+
+    /**
      * @return void
      */
     public function supervisorOnConstructHook(): void
@@ -47,11 +55,15 @@ trait SupervisorProcessTrait
     {
         if (!extension_loaded("pcntl")) {
             throw new \RuntimeException("Charcoal supervisor process requires PCNTL extension");
+        } elseif (!is_array($this->supervisorConfig)) {
+            throw new \RuntimeException("This is not a master process; Cannot spawn child");
         }
 
-        if (count($this->supervisorChildren ?? []) >= ($this->supervisorConfig->maxChildren ?? 10)) {
-            throw new ChildSpawnException(sprintf("Maximum number of child-processes reached (%d)",
-                $this->supervisorConfig->maxChildren));
+        if ($this->supervisorConfig->maxChildren > 0) {
+            if (count($this->supervisorChildren ?? []) >= $this->supervisorConfig->maxChildren) {
+                throw new ChildSpawnException(sprintf("Maximum number of child-processes reached (%d)",
+                    $this->supervisorConfig->maxChildren));
+            }
         }
 
         $childPid = pcntl_fork();
@@ -101,6 +113,7 @@ trait SupervisorProcessTrait
             $res = pcntl_waitpid($childPid, $status, $blocking ? 0 : WNOHANG);
             if ($res > 0 || $res === -1) {
                 unset($this->supervisorChildren[$childPid]);
+                $this->childProcessExitedHook($childPid, $status);
             }
         }
     }
