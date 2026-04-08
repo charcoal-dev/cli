@@ -20,5 +20,7 @@ interface CrashRecoverableProcessInterface
 
     public function recoveryOnConstructHook(): void;
 
-    public function handleRecoveryAfterCrash(): void;
+    public function onStartRecovery(): void;
+
+    public function onEndRecovery(): void;
 }

@@ -47,50 +47,22 @@ trait CrashRecoverableTrait
     /**
      * @return void
      */
-    protected function beforeHealingStart(): void
+    public function onStartRecovery(): void
     {
+        if ($this->state !== ExecutionState::HEALING) {
+            throw new \BadMethodCallException("Recovery process can only be started in HEALING state");
+        }
+
         $this->memoryCleanup();
     }
 
-    protected function onHealingFinished(): void
+    /**
+     * @return void
+     */
+    public function onEndRecovery(): void
     {
-        $this->cli->catchPcntlSignal();
-
-        $this->print("{cyan}~~~~~");
-        $this->print("{cyan}Restating App Process...");
-//        if ($this->logger) {
-//            $this->logger->context->log("App Process Restarted");
-//            $this->logger->changeState(CliScriptState::STARTED);
-//            $this->logger->saveStateContext()->captureCpuStats(upsertState: false);
-//        }
-
-        $this->print("");
-    }
-
-    final protected function handleRecoveryAfterCrash(): void
-    {
-        $this->print("");
-        $this->inline(sprintf("{grey}Recovery in {b}%d{/} ticks ", $this->recovery->ticks));
-        //$recoveryEta = round(($this->recovery->ticks * $this->recovery->ticksInterval) / $this->recovery->ticksInterval, 1);
-//        if ($this->logger) {
-//            $this->logger->context->log(sprintf("Recovery expected in %s seconds", $recoveryEta));
-//            $this->logger->changeState(CliScriptState::HEALING);
-//            $this->logger->saveStateContext()->captureCpuStats(upsertState: false);
-//        }
-
-        $this->beforeHealingStart();
-        $this->state = ExecutionState::HEALING;
-        for ($i = 0; $i < $this->recovery->ticks; $i++) {
-            if (($i % 3) === 0) { // On every 3rd tick
-                $this->cli->catchPcntlSignal();
-            }
-
-            usleep($this->recovery->ticksInterval);
-            $this->inline(".");
+        if ($this->state !== ExecutionState::HEALING) {
+            throw new \BadMethodCallException("Recovery process not in HEALING state");
         }
-
-        $this->print("")->print("");
-        $this->onHealingFinished();
-        $this->state = ExecutionState::RUNNING;
     }
 }

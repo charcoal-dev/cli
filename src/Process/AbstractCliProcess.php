@@ -78,7 +78,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
         }
 
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        if($this instanceof SupervisorInterface) {
+        if ($this instanceof SupervisorInterface) {
             $this->terminateChildren(15);
         }
     }
@@ -89,13 +89,10 @@ abstract class AbstractCliProcess extends AbstractCliScript
      */
     protected function handleProcessCrash(\Throwable $t): void
     {
-        $this->print("")->print("{red}{b}Process has crashed!")
+        $this->eol()->print("{red}{b}Process has crashed!")
             ->print(sprintf("{red}[{yellow}%s{/}{red}]: %s{/}", get_class($t), $t->getMessage()));
 
         $this->state = ExecutionState::ERROR;
-        // Todo: Update process state to CRASHED
-        // Todo: Raise an alert
-
         if ($this instanceof SupervisorInterface) {
             $this->terminateChildren(15);
         }
@@ -117,28 +114,44 @@ abstract class AbstractCliProcess extends AbstractCliScript
             throw $t;
         }
 
-        // Todo: Update logger with exception
-        $this->handleRecoveryAfterCrash();
+        $this->state = ExecutionState::HEALING;
+        $this->onStartRecovery();
+
+        $this->eol()->print(sprintf("{grey}Recovery expected in {b}%s{/} seconds",
+            round(($this->recovery->ticks * $this->recovery->ticksInterval) / $this->recovery->ticksInterval, 1)));
+        $this->inline(sprintf("{grey}Recovery in {b}%d{/} ticks ", $this->recovery->ticks));
+        for ($i = 0; $i < $this->recovery->ticks; $i++) {
+            if (($i % 3) === 0) { // On every 3rd tick
+                $this->cli->catchPcntlSignal();
+            }
+
+            usleep($this->recovery->ticksInterval);
+            $this->inline(".");
+        }
+
+        $this->eol()->eol();
+        $this->onEndRecovery();
+        $this->state = ExecutionState::RUNNING;
     }
 
     /**
-     * @param bool $compact
+     * @param bool $verbose
      * @return void
      */
-    final protected function memoryCleanup(bool $compact = true): void
+    final protected function memoryCleanup(bool $verbose = true): void
     {
-        call_user_func([$this, $compact ? "print" : "inline"], "{cyan}Runtime memory clean-up initiated: ");
-        $this->memoryCleanupHook($compact);
-        if (!$compact) {
+        call_user_func([$this, $verbose ? "print" : "inline"], "{cyan}Runtime memory clean-up initiated: ");
+        $this->memoryCleanupHook($verbose);
+        if (!$verbose) {
             $this->print("{green}Done");
         }
     }
 
     /**
-     * @param bool $compact
+     * @param bool $verbose
      * @return void
      */
-    protected function memoryCleanupHook(bool $compact = true): void
+    protected function memoryCleanupHook(bool $verbose = true): void
     {
     }
 }
