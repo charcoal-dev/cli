@@ -27,6 +27,8 @@ abstract class AbstractCliProcess extends AbstractCliScript
 {
     final protected const int TIME_LIMIT = 0;
 
+    private(set) int $currentTickNum = -1;
+
     public function __construct(Console $cli)
     {
         parent::__construct($cli);
@@ -55,6 +57,8 @@ abstract class AbstractCliProcess extends AbstractCliScript
     final protected function exec(): void
     {
         while (true) {
+            $this->currentTickNum++;
+
             try {
                 $interval = $this->onEachTick();
                 $this->onEveryLoop();
