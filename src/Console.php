@@ -258,10 +258,11 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
             try {
                 if (!$scriptClassname) {
-                    throw new ScriptNotFoundException("No script specified to execute!");
+                    throw new ScriptNotFoundException($scriptClassname, "No script specified to execute!");
                 } elseif (!is_a($scriptClassname, AbstractCliScript::class, true)) {
                     throw new ScriptNotFoundException(
-                        sprintf('Script class "%s" must extend "%s" class', $scriptClassname, AbstractCliScript::class)
+                        $scriptClassname,
+                        sprintf('Script class "%s" must extend "AbstractCliScript"', $scriptClassname)
                     );
                 }
 

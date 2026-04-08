@@ -18,7 +18,6 @@ final readonly class RuntimeStatusChange implements ConsoleEventSignal
 {
     public function __construct(
         public ExecutionState $state,
-        public ?string        $scriptFqcn = null,
         public ?\Throwable    $exception = null
     )
     {

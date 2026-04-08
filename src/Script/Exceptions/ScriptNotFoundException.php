@@ -14,4 +14,11 @@ namespace Charcoal\Cli\Script\Exceptions;
  */
 final class ScriptNotFoundException extends \Exception
 {
+    public function __construct(
+        public ?string $scriptFqcn,
+        string         $message
+    )
+    {
+        parent::__construct($message);
+    }
 }
