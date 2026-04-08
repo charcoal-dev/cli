@@ -33,7 +33,6 @@ final class TestIpcMasterProcess extends AbstractCliProcess implements
         return 1;
     }
 
-
     //
     // Recoverable Process Functionality
     //
@@ -80,5 +79,9 @@ final class TestIpcMasterProcess extends AbstractCliProcess implements
     protected function declareSupervisorConfig(): SupervisorConfig
     {
         return new SupervisorConfig(maxChildren: 1);
+    }
+
+    protected function prepareChildProcess(): void
+    {
     }
 }

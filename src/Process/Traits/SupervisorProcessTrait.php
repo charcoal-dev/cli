@@ -25,6 +25,12 @@ trait SupervisorProcessTrait
     abstract protected function declareSupervisorConfig(): SupervisorConfig;
 
     /**
+     * This method is called when the process is forked as CHILD.
+     * Use it to unset any unnecessary properties or further distinguish $this as a child process.
+     */
+    abstract protected function prepareChildProcess(): void;
+
+    /**
      * @return void
      */
     public function supervisorOnConstructHook(): void
@@ -61,13 +67,7 @@ trait SupervisorProcessTrait
 
         // Child Process
         $this->supervisorChildren = null;
-
-        // Reset Signal Handlers
-        pcntl_signal(SIGTERM, SIG_DFL);
-        pcntl_signal(SIGINT, SIG_DFL);
-        pcntl_signal(SIGHUP, SIG_DFL);
-        pcntl_signal(SIGQUIT, SIG_DFL);
-        pcntl_signal(SIGALRM, SIG_DFL);
+        $this->prepareChildProcess();
 
         // Execute Logic
         try {
