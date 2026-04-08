@@ -15,7 +15,6 @@ use Charcoal\Cli\Contracts\Supervisor\SupervisorInterface;
 use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Process\Exceptions\ChildProcessCompletedException;
 use Charcoal\Cli\Process\Exceptions\UnrecoverableException;
-use Charcoal\Cli\Process\Traits\CrashRecoverableTrait;
 use Charcoal\Cli\Script\AbstractCliScript;
 
 /**
@@ -26,8 +25,6 @@ use Charcoal\Cli\Script\AbstractCliScript;
  */
 abstract class AbstractCliProcess extends AbstractCliScript
 {
-    use CrashRecoverableTrait;
-
     final protected const int TIME_LIMIT = 0;
 
     public function __construct(Console $cli)
@@ -55,7 +52,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
     /**
      * @throws \Throwable
      */
-    final function exec(): void
+    final protected function exec(): void
     {
         while (true) {
             try {

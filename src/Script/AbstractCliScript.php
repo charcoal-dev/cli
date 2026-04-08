@@ -79,7 +79,7 @@ abstract class AbstractCliScript
     /**
      * @return void
      */
-    abstract public function exec(): void;
+    abstract protected function exec(): void;
 
     /**
      * @param string $line
