@@ -68,8 +68,6 @@ final class TestIpcMasterProcess extends AbstractCliProcess implements
         if ($frame->frameCode === TestDaemonFrames::Ping) {
             throw new \Exception("Ping Exception");
         }
-
-        throw new \Exception("Unknown IPC Frame");
     }
 
     //

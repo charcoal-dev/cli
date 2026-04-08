@@ -49,7 +49,7 @@ trait CrashRecoverableTrait
      */
     public function onStartRecovery(): void
     {
-        if ($this->state !== ExecutionState::HEALING) {
+        if ($this->state !== ExecutionState::Healing) {
             throw new \BadMethodCallException("Recovery process can only be started in HEALING state");
         }
 
@@ -61,7 +61,7 @@ trait CrashRecoverableTrait
      */
     public function onEndRecovery(): void
     {
-        if ($this->state !== ExecutionState::HEALING) {
+        if ($this->state !== ExecutionState::Healing) {
             throw new \BadMethodCallException("Recovery process not in HEALING state");
         }
     }

@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Charcoal\Cli;
 
 use Charcoal\Base\Strings\CaseStyle;
+use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Events\ConsoleEvents;
-use Charcoal\Cli\Events\State\RuntimeStatus;
 use Charcoal\Cli\Events\State\RuntimeStatusChange;
 use Charcoal\Cli\Events\Terminate\ExceptionCaught;
 use Charcoal\Cli\Events\Terminate\PcntlSignalClose;
@@ -234,7 +234,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
         try {
             // Preparing to execute script
-            ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Prepare));
+            ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(ExecutionState::Initializing));
 
             // Load script
             try {
@@ -270,7 +270,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
                 $this->execScriptObject = new $scriptClassname($this);
             } catch (\RuntimeException $e) {
                 ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(
-                    RuntimeStatus::ScriptNotFound,
+                    ExecutionState::ScriptNotFound,
                     $scriptClassname
                 ));
 
@@ -285,9 +285,6 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
                 set_time_limit($this->execScriptObject->timeLimit);
             }
-
-            // Script is loaded trigger
-            ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Ready));
 
             // Execute script
             try {
@@ -311,10 +308,6 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
         } else {
             $this->print("{red}Execution finished with an exception!{/}");
         }
-
-        // After script exec event
-        ConsoleEvents::getEvent($this)->dispatch(new RuntimeStatusChange(RuntimeStatus::Completed,
-            isSuccess: $execSuccess));
 
         $this->print("");
         $this->print(sprintf("Execution time: {grey}%sms{/}",

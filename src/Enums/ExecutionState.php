@@ -16,15 +16,15 @@ use Charcoal\Base\Enums\Traits\EnumMappingTrait;
  */
 enum ExecutionState: string
 {
-    case STARTED = "started";
-    case READY = "ready";
-    case RUNNING = "running";
-    case PAUSED = "paused";
-    case ERROR = "error";
-    case HEALING = "healing";
-    case STOPPED = "stopped";
-    case FINISHED = "finished";
-    case UNKNOWN = "unknown";
+    case Initializing = "init";
+    case ScriptNotFound = "script_404";
+    case Ready = "ready";
+    case Running = "running";
+    case Paused = "paused";
+    case Healing = "healing";
+    case Error = "error";
+    case Finished = "finished";
+    case Unknown = "unknown";
 
     use EnumMappingTrait;
 }

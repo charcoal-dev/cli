@@ -8,24 +8,18 @@ declare(strict_types=1);
 
 namespace Charcoal\Cli\Events\State;
 
+use Charcoal\Cli\Enums\ExecutionState;
 use Charcoal\Cli\Events\ConsoleEventSignal;
-use Charcoal\Cli\Script\AbstractCliScript;
 
 /**
- * Class ExecutionStateChange
- * @package Charcoal\Cli\Events\State
+ * Represents a change in runtime status during execution, implemented as a signal for console events.
  */
 final readonly class RuntimeStatusChange implements ConsoleEventSignal
 {
-    /**
-     * @param RuntimeStatus $state
-     * @param class-string<AbstractCliScript>|null $scriptClassname
-     * @param bool|null $isSuccess
-     */
     public function __construct(
-        public RuntimeStatus $state,
-        public ?string       $scriptClassname = null,
-        public ?bool         $isSuccess = null,
+        public ExecutionState $state,
+        public ?string        $scriptFqcn = null,
+        public ?\Throwable    $exception = null
     )
     {
     }

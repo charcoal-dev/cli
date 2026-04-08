@@ -11,6 +11,7 @@ namespace Charcoal\Cli\Script;
 use Charcoal\Base\Objects\ObjectHelper;
 use Charcoal\Cli\Console;
 use Charcoal\Cli\Enums\ExecutionState;
+use Charcoal\Cli\Events\State\RuntimeStatusChange;
 
 /**
  * Abstract base class for command-line interface (CLI) scripts, providing utility methods
@@ -34,8 +35,26 @@ abstract class AbstractCliScript
             throw new \InvalidArgumentException("Invalid CLI script time limit");
         }
 
-        $this->state = ExecutionState::STARTED;
         $this->timeLimit = static::TIME_LIMIT;
+        $this->changeState(ExecutionState::Ready);
+    }
+
+    /**
+     * @param ExecutionState $state
+     * @param bool $triggerEvent
+     * @param \Throwable|null $eventException
+     * @return void
+     */
+    final protected function changeState(
+        ExecutionState $state,
+        bool           $triggerEvent = true,
+        ?\Throwable    $eventException = null
+    ): void
+    {
+        $this->state = $state;
+        if ($triggerEvent) {
+            $this->cli->events->dispatch(new RuntimeStatusChange($state, exception: $eventException));
+        }
     }
 
     /**
@@ -48,7 +67,7 @@ abstract class AbstractCliScript
 
     /**
      * Alias of exec method
-     * @internal
+     * @throws \Throwable
      */
     final public function burn(): void
     {
@@ -58,14 +77,14 @@ abstract class AbstractCliScript
         }
 
         try {
-            $this->state = ExecutionState::RUNNING;
+            $this->changeState(ExecutionState::Running);
             $this->exec();
         } catch (\Throwable $t) {
-            $this->state = ExecutionState::ERROR;
+            $this->changeState(ExecutionState::Error);
             throw $t;
         }
 
-        $this->state = ExecutionState::FINISHED;
+        $this->changeState(ExecutionState::Finished);
     }
 
     /**

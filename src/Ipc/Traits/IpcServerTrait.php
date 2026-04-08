@@ -58,6 +58,7 @@ trait IpcServerTrait
     /**
      * @param bool $quiet
      * @return void
+     * @throws \Exception
      */
     protected function ipcListen(bool $quiet = false): void
     {

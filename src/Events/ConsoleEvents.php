@@ -24,7 +24,7 @@ use Charcoal\Events\Support\Traits\EventStaticScopeTrait;
  * @template S of Console
  * @template E of RuntimeStatusChange|ExceptionCaught|PcntlSignalClose
  */
-class ConsoleEvents extends BehaviorEvent
+final class ConsoleEvents extends BehaviorEvent
 {
     use EventStaticScopeTrait;
 
@@ -53,7 +53,7 @@ class ConsoleEvents extends BehaviorEvent
     }
 
     /**
-     * @param E $context
+     * @param ConsoleEventSignal $context
      * @return DispatchReport
      */
     public function dispatch(ConsoleEventSignal $context): DispatchReport

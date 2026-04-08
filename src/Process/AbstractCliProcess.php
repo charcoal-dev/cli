@@ -93,13 +93,13 @@ abstract class AbstractCliProcess extends AbstractCliScript
         $this->eol()->print("{red}{b}Process has crashed!")
             ->print(sprintf("{red}[{yellow}%s{/}{red}]: %s{/}", get_class($t), $t->getMessage()));
 
-        $this->state = ExecutionState::ERROR;
         if ($this instanceof SupervisorInterface) {
             $this->terminateChildren(15);
         }
 
         // Check for recovery options after a crash...
         if ($t instanceof UnrecoverableException) {
+            $this->changeState(ExecutionState::Error, true, $t);
             throw $t;
         }
 
@@ -112,10 +112,11 @@ abstract class AbstractCliProcess extends AbstractCliScript
         }
 
         if (!$recoverable) {
+            $this->changeState(ExecutionState::Error, true, $t);
             throw $t;
         }
 
-        $this->state = ExecutionState::HEALING;
+        $this->changeState(ExecutionState::Healing, true, $t);
         $this->onStartRecovery();
 
         $this->eol()->print(sprintf("{grey}Recovery expected in {b}%s{/} seconds",
@@ -132,7 +133,7 @@ abstract class AbstractCliProcess extends AbstractCliScript
 
         $this->eol()->eol();
         $this->onEndRecovery();
-        $this->state = ExecutionState::RUNNING;
+        $this->changeState(ExecutionState::Running);
     }
 
     /**
