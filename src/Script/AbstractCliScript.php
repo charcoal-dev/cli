@@ -24,7 +24,7 @@ abstract class AbstractCliScript
     /** @var int Set an execution time limit or 0 for infinite */
     protected const int TIME_LIMIT = 30;
 
-    public readonly string $whoAmI;
+    protected(set) string $whoAmI;
     public readonly int $startedOn;
     public readonly int $timeLimit;
     protected(set) ExecutionState $state;
