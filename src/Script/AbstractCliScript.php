@@ -81,7 +81,7 @@ abstract class AbstractCliScript
             $this->hookBeforeExecutionStart();
             $this->exec();
         } catch (\Throwable $t) {
-            $this->changeState(ExecutionState::Error);
+            $this->changeState(ExecutionState::Error, true, $t);
             $this->hookAfterExecutionEnd(false);
             throw $t;
         }
