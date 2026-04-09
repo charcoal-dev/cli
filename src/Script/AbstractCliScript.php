@@ -78,13 +78,31 @@ abstract class AbstractCliScript
 
         try {
             $this->changeState(ExecutionState::Running);
+            $this->hookBeforeExecutionStart();
             $this->exec();
         } catch (\Throwable $t) {
             $this->changeState(ExecutionState::Error);
+            $this->hookAfterExecutionEnd(false);
             throw $t;
         }
 
         $this->changeState(ExecutionState::Finished);
+        $this->hookAfterExecutionEnd(true);
+    }
+
+    /**
+     * @return void
+     */
+    protected function hookBeforeExecutionStart(): void
+    {
+    }
+
+    /**
+     * @param bool $isSuccess
+     * @return void
+     */
+    protected function hookAfterExecutionEnd(bool $isSuccess): void
+    {
     }
 
     /**
