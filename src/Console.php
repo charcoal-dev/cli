@@ -515,6 +515,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
      */
     public function getCurrentUuid(): ?string
     {
-        return $this->argScriptName;
+        return isset($this->execScriptObject) ?
+            $this->execScriptObject->getCurrentUuid() : $this->argScriptName;
     }
 }

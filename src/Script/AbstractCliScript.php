@@ -256,4 +256,12 @@ abstract class AbstractCliScript
             sleep(1);
         }
     }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentUuid(): ?string
+    {
+        return $this->whoAmI ?? null;
+    }
 }
