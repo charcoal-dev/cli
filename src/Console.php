@@ -83,6 +83,7 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
 
             // Set if a flag
             if (preg_match('/^-{1,2}\w+$/', $arg)) {
+                $isFlag = true;
                 switch (strtolower(ltrim($arg, "-"))) {
                     case "q":
                     case "quick":
@@ -102,6 +103,13 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
                     case "ansi":
                         $this->flags->set(Flags::ANSI);
                         break;
+                    default:
+                        $isFlag = false;
+                        break;
+                }
+
+                if ($isFlag) {
+                    continue;
                 }
             }
 
