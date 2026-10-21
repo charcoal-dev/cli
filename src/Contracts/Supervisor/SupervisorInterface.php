@@ -29,7 +29,7 @@ interface SupervisorInterface
      * List of currently active child process PIDs managed by the supervisor.
      * Returns null in the child process context.
      */
-    protected(set) ?array $supervisorChildren {
+    public ?array $supervisorChildren {
         get;
     }
 

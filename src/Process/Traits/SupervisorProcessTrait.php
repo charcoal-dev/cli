@@ -19,8 +19,8 @@ use Charcoal\Cli\Process\Exceptions\UnrecoverableException;
  */
 trait SupervisorProcessTrait
 {
-    protected SupervisorConfig $supervisorConfig;
-    protected ?array $supervisorChildren = [];
+    protected(set) SupervisorConfig $supervisorConfig;
+    protected(set) ?array $supervisorChildren = [];
 
     abstract protected function declareSupervisorConfig(): SupervisorConfig;
 
@@ -55,7 +55,7 @@ trait SupervisorProcessTrait
     {
         if (!extension_loaded("pcntl")) {
             throw new \RuntimeException("Charcoal supervisor process requires PCNTL extension");
-        } elseif (!is_array($this->supervisorConfig)) {
+        } elseif ($this->supervisorChildren === null) {
             throw new \RuntimeException("This is not a master process; Cannot spawn child");
         }
 
