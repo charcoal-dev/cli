@@ -310,19 +310,21 @@ class Console implements EventStoreOwnerInterface, ServerApiInterface
         }
 
         // Execution
-        $this->print("");
-        if ($execSuccess) {
-            $this->print("{green}Execution finished!{/}");
-        } else {
-            $this->print("{red}Execution finished with an exception!{/}");
+        if($this->execScriptObject->showExecutionSummary) {
+            $this->print("");
+            if ($execSuccess) {
+                $this->print("{green}Execution finished!{/}");
+            } else {
+                $this->print("{red}Execution finished with an exception!{/}");
+            }
+
+            $this->print("");
+            $this->print(sprintf("Execution time: {grey}%sms{/}",
+                number_format((hrtime(true) - $this->execStartedOn) / 1e6, 4)
+            ));
+
+            $this->printMemoryConsumption();
         }
-
-        $this->print("");
-        $this->print(sprintf("Execution time: {grey}%sms{/}",
-            number_format((hrtime(true) - $this->execStartedOn) / 1e6, 4)
-        ));
-
-        $this->printMemoryConsumption();
 
         /** @var \Charcoal\Cli\Output\AbstractOutputHandler $output */
         foreach ($this->outputBuffers as $output) {

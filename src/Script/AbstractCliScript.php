@@ -29,6 +29,8 @@ abstract class AbstractCliScript
     public readonly int $timeLimit;
     protected(set) ExecutionState $state;
 
+    public bool $showExecutionSummary = true;
+
     public function __construct(public readonly Console $cli)
     {
         if (!is_int(static::TIME_LIMIT) || static::TIME_LIMIT < 0) {
